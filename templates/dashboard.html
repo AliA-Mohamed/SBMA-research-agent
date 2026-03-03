@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en" x-data="dashboard()" :class="{ 'dark': darkMode }">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SBMA Research Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { serif: ['Georgia', 'Merriweather', 'serif'] },
+        }
+      }
+    }
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .glass { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+    .slide-up { animation: slideUp 0.5s ease-out forwards; opacity: 0; }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pulse-bar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .pulse-bar { animation: pulse-bar 2s ease-in-out infinite; }
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .counter { transition: all 0.3s ease; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 3px; }
+    /* Plotly dark mode overrides */
+    .dark .js-plotly-plot .plotly .main-svg { background: transparent !important; }
+    /* Reading progress */
+    .reading-progress { transition: width 0.2s ease; }
+    /* Textbook content */
+    .textbook-rendered h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; }
+    .textbook-rendered h2 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+    .textbook-rendered h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.4rem; }
+    .textbook-rendered p { margin: 0.5rem 0; line-height: 1.8; }
+    .textbook-rendered ul, .textbook-rendered ol { margin: 0.5rem 0; padding-left: 1.5rem; }
+    .textbook-rendered li { margin: 0.25rem 0; line-height: 1.7; }
+    .textbook-rendered code { background: rgba(99,102,241,0.1); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-size: 0.875rem; }
+    .textbook-rendered blockquote { border-left: 3px solid #06b6d4; padding-left: 1rem; margin: 0.5rem 0; opacity: 0.9; }
+    .textbook-rendered a { color: #06b6d4; text-decoration: underline; }
+    /* Confidence ring */
+    .conf-ring { transform: rotate(-90deg); }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300 min-h-screen">
+
+  <!-- Top Navbar -->
+  <nav class="sticky top-0 z-50 glass bg-white/70 dark:bg-slate-900/70 border-b border-white/20 dark:border-slate-700/50">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-500/25">S</div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-cyan-500 to-violet-500 bg-clip-text text-transparent">SBMA Research Dashboard</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Spinal &amp; Bulbar Muscular Atrophy</p>
+        </div>
+      </div>
+      <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+              class="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" :title="darkMode ? 'Light mode' : 'Dark mode'">
+        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Tab Navigation -->
+  <div class="sticky top-[60px] z-40 glass bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/50">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6">
+      <div class="flex gap-1 overflow-x-auto py-2 scrollbar-hide" style="-ms-overflow-style:none;scrollbar-width:none;">
+        <template x-for="tab in tabs" :key="tab.id">
+          <button @click="switchTab(tab.id)"
+                  :class="activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500 to-violet-500 text-white shadow-lg shadow-cyan-500/25'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200"
+                  x-text="tab.label"></button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6">
+
+    <!-- Loading State -->
+    <div x-show="loading" x-cloak class="flex flex-col items-center justify-center py-20">
+      <div class="w-12 h-12 border-4 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin"></div>
+      <p class="mt-4 text-slate-500 dark:text-slate-400">Loading data...</p>
+    </div>
+
+    <!-- ==================== OVERVIEW TAB ==================== -->
+    <div x-show="activeTab === 'overview'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.overview">
+        <div>
+          <!-- Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 slide-up stagger-1">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-slate-800 dark:text-white counter" x-text="animatedCounters.articles.toLocaleString()">0</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Total Articles</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 slide-up stagger-2">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-slate-800 dark:text-white counter" x-text="animatedCounters.knowledge.toLocaleString()">0</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Knowledge Entries</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 slide-up stagger-3">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-slate-800 dark:text-white counter" x-text="animatedCounters.fulltext.toLocaleString()">0</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Full-text Available</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 slide-up stagger-4">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div>
+                  <p class="text-2xl font-bold text-slate-800 dark:text-white counter" x-text="animatedCounters.years.toLocaleString()">0</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">Years of Research</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest Report Info -->
+          <template x-if="tabData.overview.latest_report">
+            <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-4 border border-white/20 dark:border-slate-700/50 mb-6 fade-in">
+              <div class="flex items-center gap-2 text-sm">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300">Latest Digest</span>
+                <span class="text-slate-600 dark:text-slate-400" x-text="tabData.overview.latest_report.report_date || 'N/A'"></span>
+                <span class="text-slate-400 dark:text-slate-500">|</span>
+                <span class="text-slate-600 dark:text-slate-400"><span class="font-semibold" x-text="tabData.overview.latest_report.new_articles_found"></span> new articles</span>
+              </div>
+            </div>
+          </template>
+
+          <!-- Overview Chart -->
+          <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 fade-in">
+            <h3 class="text-lg font-semibold mb-4">Publications Over Time</h3>
+            <div id="overview-chart" class="w-full" style="min-height:350px;"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== PUBLICATIONS TAB ==================== -->
+    <div x-show="activeTab === 'publications'" x-cloak x-transition:enter="fade-in">
+      <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+        <h3 class="text-lg font-semibold mb-4">SBMA Publications by Year</h3>
+        <div id="pub-chart" class="w-full" style="min-height:450px;"></div>
+      </div>
+    </div>
+
+    <!-- ==================== AUTHORS TAB ==================== -->
+    <div x-show="activeTab === 'authors'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.authors">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+            <h3 class="text-lg font-semibold mb-4">Top Authors in SBMA Research</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200 dark:border-slate-700">
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Author</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Pubs</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">1st Auth</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Last Auth</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">h-index</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Active</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 w-32">Volume</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(a, i) in tabData.authors.authors" :key="i">
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                      <td class="py-2 px-3">
+                        <span x-show="i===0" class="text-lg">&#129351;</span>
+                        <span x-show="i===1" class="text-lg">&#129352;</span>
+                        <span x-show="i===2" class="text-lg">&#129353;</span>
+                        <span x-show="i>2" class="text-slate-400" x-text="i+1"></span>
+                      </td>
+                      <td class="py-2 px-3 font-medium" x-text="a.name || a.author_name || ''"></td>
+                      <td class="py-2 px-3" x-text="a.pub_count || a.total_papers || 0"></td>
+                      <td class="py-2 px-3" x-text="a.first_author_papers || '-'"></td>
+                      <td class="py-2 px-3" x-text="a.last_author_papers || '-'"></td>
+                      <td class="py-2 px-3" x-text="a.h_index_in_field || '-'"></td>
+                      <td class="py-2 px-3 text-xs" x-text="a.active_years || '-'"></td>
+                      <td class="py-2 px-3">
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                          <div class="bg-gradient-to-r from-cyan-500 to-violet-500 h-2 rounded-full transition-all duration-500"
+                               :style="'width:' + Math.min(100, ((a.pub_count || a.total_papers || 0) / (tabData.authors.authors[0].pub_count || tabData.authors.authors[0].total_papers || 1)) * 100) + '%'"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+            <h3 class="text-lg font-semibold mb-4">Co-authorship Network</h3>
+            <div id="author-network-chart" class="w-full" style="min-height:400px;"></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== CITATIONS TAB ==================== -->
+    <div x-show="activeTab === 'citations'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.citations">
+        <div>
+          <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Top Cited SBMA Articles</h3>
+            <div id="cite-chart" class="w-full" style="min-height:500px;"></div>
+          </div>
+          <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+            <h3 class="text-lg font-semibold mb-4">Citation Details</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200 dark:border-slate-700">
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Title</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Journal</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Year</th>
+                    <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Citations</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(a, i) in tabData.citations.articles" :key="i">
+                    <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                      <td class="py-2 px-3 text-slate-400" x-text="i+1"></td>
+                      <td class="py-2 px-3 max-w-md"><span class="line-clamp-2" x-text="a.title"></span></td>
+                      <td class="py-2 px-3 text-xs" x-text="a.journal || '-'"></td>
+                      <td class="py-2 px-3" x-text="a.year || '-'"></td>
+                      <td class="py-2 px-3"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300" x-text="a.citation_count"></span></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== JOURNALS TAB ==================== -->
+    <div x-show="activeTab === 'journals'" x-cloak x-transition:enter="fade-in">
+      <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+        <h3 class="text-lg font-semibold mb-4">Top Journals for SBMA Research</h3>
+        <div id="journal-chart" class="w-full" style="min-height:500px;"></div>
+      </div>
+    </div>
+
+    <!-- ==================== TOPICS TAB ==================== -->
+    <div x-show="activeTab === 'topics'" x-cloak x-transition:enter="fade-in">
+      <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+        <h3 class="text-lg font-semibold mb-4">Topic Evolution (MeSH Terms by Decade)</h3>
+        <div id="topic-chart" class="w-full" style="min-height:500px;"></div>
+        <template x-if="tabData.topics && tabData.topics.message">
+          <div class="text-center py-10 text-slate-500" x-text="tabData.topics.message"></div>
+        </template>
+      </div>
+    </div>
+
+    <!-- ==================== ARTICLE TYPES TAB ==================== -->
+    <div x-show="activeTab === 'types'" x-cloak x-transition:enter="fade-in">
+      <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+        <h3 class="text-lg font-semibold mb-4">Article Types Over Time</h3>
+        <div id="types-chart" class="w-full" style="min-height:450px;"></div>
+        <template x-if="tabData.types && tabData.types.message">
+          <div class="text-center py-10 text-slate-500" x-text="tabData.types.message"></div>
+        </template>
+      </div>
+    </div>
+
+    <!-- ==================== KNOWLEDGE TAB ==================== -->
+    <div x-show="activeTab === 'knowledge'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.knowledge">
+        <div>
+          <!-- Type badges -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button @click="knowledgeFilter = null; loadKnowledge()"
+                    :class="knowledgeFilter === null ? 'bg-gradient-to-r from-cyan-500 to-violet-500 text-white' : 'bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300'"
+                    class="px-3 py-1.5 rounded-full text-sm font-medium glass border border-white/20 dark:border-slate-700/50 transition-all">
+              All
+            </button>
+            <template x-for="(count, type) in tabData.knowledge.type_counts" :key="type">
+              <button @click="knowledgeFilter = type; loadKnowledge()"
+                      :class="knowledgeFilter === type ? 'bg-gradient-to-r from-cyan-500 to-violet-500 text-white' : 'bg-white/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300'"
+                      class="px-3 py-1.5 rounded-full text-sm font-medium glass border border-white/20 dark:border-slate-700/50 transition-all">
+                <span x-text="type"></span>
+                <span class="ml-1 opacity-70" x-text="'(' + count + ')'"></span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Search -->
+          <div class="mb-4">
+            <input type="text" x-model="knowledgeSearch" @input.debounce.300ms="filterKnowledgeLocal()"
+                   placeholder="Search knowledge entries..."
+                   class="w-full px-4 py-2 rounded-xl glass bg-white/80 dark:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50">
+          </div>
+
+          <!-- Knowledge cards -->
+          <div class="space-y-3">
+            <template x-for="(k, i) in filteredKnowledge" :key="k.id || i">
+              <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-xl p-4 border border-white/20 dark:border-slate-700/50 slide-up"
+                   :class="k.knowledge_type === 'novel_finding' ? 'border-l-4 border-l-emerald-500' : (k.knowledge_type === 'confirmatory' ? 'border-l-4 border-l-blue-500' : 'border-l-4 border-l-slate-300 dark:border-l-slate-600')"
+                   :style="'animation-delay:' + (i * 0.05) + 's'">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            :class="{
+                              'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300': k.knowledge_type === 'novel_finding',
+                              'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300': k.knowledge_type === 'confirmatory',
+                              'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300': k.knowledge_type === 'mechanism',
+                              'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300': k.knowledge_type === 'therapeutic',
+                              'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300': !['novel_finding','confirmatory','mechanism','therapeutic'].includes(k.knowledge_type)
+                            }"
+                            x-text="k.knowledge_type"></span>
+                      <span class="text-xs text-slate-400" x-text="'PMID: ' + k.pmid"></span>
+                    </div>
+                    <h4 class="font-medium text-sm" x-text="k.summary || 'No summary'"></h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2" x-show="k.details" x-text="k.details ? k.details.substring(0, 300) : ''"></p>
+                  </div>
+                  <!-- Confidence ring -->
+                  <div class="flex-shrink-0" x-show="k.confidence != null">
+                    <svg class="w-12 h-12 conf-ring" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="2"
+                              class="stroke-slate-200 dark:stroke-slate-700"/>
+                      <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="2.5" stroke-linecap="round"
+                              :stroke-dasharray="(k.confidence * 100) + ', 100'"
+                              :class="k.confidence >= 0.8 ? 'stroke-emerald-500' : (k.confidence >= 0.5 ? 'stroke-amber-500' : 'stroke-red-500')"/>
+                      <text x="18" y="20" text-anchor="middle" class="fill-slate-600 dark:fill-slate-300" style="font-size:8px;transform:rotate(90deg);transform-origin:center;"
+                            x-text="Math.round((k.confidence || 0) * 100) + '%'"></text>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <div x-show="filteredKnowledge.length === 0" class="text-center py-10 text-slate-500">No knowledge entries found.</div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== TEXTBOOK TAB ==================== -->
+    <div x-show="activeTab === 'textbook'" x-cloak x-transition:enter="fade-in">
+      <!-- Reading progress bar -->
+      <div class="fixed top-0 left-0 right-0 z-[60] h-1 bg-transparent" x-show="activeTab === 'textbook'">
+        <div class="h-full bg-gradient-to-r from-cyan-500 to-violet-500 reading-progress" :style="'width:' + readingProgress + '%'"></div>
+      </div>
+      <template x-if="tabData.textbook">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <!-- Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="sticky top-[120px] glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-4 border border-white/20 dark:border-slate-700/50">
+              <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Chapters</h3>
+              <nav class="space-y-1">
+                <template x-for="(sections, chapter) in tabData.textbook.chapters" :key="chapter">
+                  <button @click="activeChapter = chapter"
+                          :class="activeChapter === chapter ? 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 border-l-2 border-l-cyan-500' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'"
+                          class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors"
+                          x-text="chapter"></button>
+                </template>
+              </nav>
+            </div>
+          </div>
+          <!-- Content -->
+          <div class="lg:col-span-3" @scroll.window="updateReadingProgress()">
+            <template x-if="activeChapter && tabData.textbook.chapters[activeChapter]">
+              <div>
+                <h2 class="text-2xl font-bold mb-6" x-text="activeChapter"></h2>
+                <template x-for="s in tabData.textbook.chapters[activeChapter]" :key="s.id">
+                  <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                      <h3 class="text-lg font-semibold" x-text="s.section_title"></h3>
+                      <div class="flex items-center gap-2 text-xs text-slate-400">
+                        <span x-text="'v' + s.version"></span>
+                        <span x-text="s.contributing_pmids.length + ' sources'"></span>
+                      </div>
+                    </div>
+                    <div class="font-serif textbook-rendered text-slate-700 dark:text-slate-300 leading-relaxed" x-html="renderTextbookContent(s.content)"></div>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== ARTICLES TAB ==================== -->
+    <div x-show="activeTab === 'articles'" x-cloak x-transition:enter="fade-in">
+      <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-5 border border-white/20 dark:border-slate-700/50">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+          <h3 class="text-lg font-semibold">Article Database</h3>
+          <div class="flex items-center gap-2">
+            <input type="text" x-model="articleSearch" @input.debounce.400ms="loadArticles(1)"
+                   placeholder="Search articles..."
+                   class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 border-none text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/50 w-64">
+            <span class="text-xs text-slate-500" x-text="articleData.total + ' articles'"></span>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-700">
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 cursor-pointer hover:text-cyan-500" @click="sortArticles('title')">Title</th>
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 cursor-pointer hover:text-cyan-500" @click="sortArticles('journal')">Journal</th>
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 cursor-pointer hover:text-cyan-500" @click="sortArticles('year')">Year</th>
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 cursor-pointer hover:text-cyan-500" @click="sortArticles('type')">Type</th>
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400 cursor-pointer hover:text-cyan-500" @click="sortArticles('citations')">Cites</th>
+                <th class="text-left py-2 px-3 font-semibold text-slate-500 dark:text-slate-400">Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(a, i) in articleData.articles" :key="a.pmid">
+                <tr class="border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer"
+                    @click="expandedArticle = expandedArticle === a.pmid ? null : a.pmid">
+                  <td class="py-2 px-3 max-w-sm"><span class="line-clamp-1" x-text="a.title"></span></td>
+                  <td class="py-2 px-3 text-xs max-w-[150px] truncate" x-text="a.journal || '-'"></td>
+                  <td class="py-2 px-3" x-text="a.year || '-'"></td>
+                  <td class="py-2 px-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                          :class="{
+                            'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300': a.article_type === 'Review',
+                            'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300': a.article_type === 'Research Article' || a.article_type === 'Original Research',
+                            'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300': a.article_type === 'Clinical Trial',
+                            'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300': a.article_type === 'Case Report',
+                            'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300': !['Review','Research Article','Original Research','Clinical Trial','Case Report'].includes(a.article_type)
+                          }"
+                          x-text="a.article_type || 'Unknown'"></span>
+                  </td>
+                  <td class="py-2 px-3 font-semibold" x-text="a.citation_count || 0"></td>
+                  <td class="py-2 px-3">
+                    <a :href="'https://pubmed.ncbi.nlm.nih.gov/' + a.pmid" target="_blank" @click.stop
+                       class="text-cyan-500 hover:text-cyan-600 text-xs font-medium">PubMed</a>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <!-- Expanded row for abstract -->
+        <template x-if="expandedArticle">
+          <div class="mt-2 p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-sm">
+            <template x-for="a in articleData.articles.filter(x => x.pmid === expandedArticle)" :key="a.pmid">
+              <div>
+                <p class="font-semibold mb-1" x-text="a.title"></p>
+                <p class="text-xs text-slate-500 mb-2" x-text="'PMID: ' + a.pmid + (a.doi ? ' | DOI: ' + a.doi : '')"></p>
+                <p class="text-slate-600 dark:text-slate-300" x-text="a.abstract || 'No abstract available.'"></p>
+              </div>
+            </template>
+          </div>
+        </template>
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4">
+          <button @click="loadArticles(articleData.page - 1)" :disabled="articleData.page <= 1"
+                  class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Previous</button>
+          <span class="text-sm text-slate-500" x-text="'Page ' + articleData.page + ' of ' + articleData.total_pages"></span>
+          <button @click="loadArticles(articleData.page + 1)" :disabled="articleData.page >= articleData.total_pages"
+                  class="px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DIGESTS TAB ==================== -->
+    <div x-show="activeTab === 'digests'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.digests">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-4 border border-white/20 dark:border-slate-700/50">
+            <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Reports</h3>
+            <div class="space-y-1 max-h-[70vh] overflow-y-auto">
+              <template x-for="(r, i) in tabData.digests.reports" :key="r.id">
+                <button @click="loadReportDetail(r.id)"
+                        :class="activeReportId === r.id ? 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/30'"
+                        class="w-full text-left px-3 py-2 rounded-lg text-sm transition-colors">
+                  <span class="font-medium" x-text="r.report_date || 'Unknown'"></span>
+                  <span class="block text-xs opacity-70" x-text="r.new_articles_found + ' new articles'"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+          <div class="lg:col-span-2 glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-6 border border-white/20 dark:border-slate-700/50">
+            <template x-if="activeReport">
+              <div>
+                <h3 class="text-xl font-bold mb-1">Weekly Digest</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4" x-text="activeReport.report_date + ' — ' + activeReport.new_articles_found + ' new articles'"></p>
+                <template x-if="activeReport.summary">
+                  <div class="mb-6">
+                    <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Summary</h4>
+                    <div class="prose dark:prose-invert max-w-none text-sm textbook-rendered" x-html="renderMarkdown(activeReport.summary)"></div>
+                  </div>
+                </template>
+                <template x-if="activeReport.novelty_analysis">
+                  <div>
+                    <h4 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Novelty Analysis</h4>
+                    <div class="prose dark:prose-invert max-w-none text-sm textbook-rendered" x-html="renderMarkdown(activeReport.novelty_analysis)"></div>
+                  </div>
+                </template>
+              </div>
+            </template>
+            <template x-if="!activeReport">
+              <div class="text-center py-10 text-slate-500">Select a report from the left.</div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ==================== RESEARCH GAPS TAB ==================== -->
+    <div x-show="activeTab === 'gaps'" x-cloak x-transition:enter="fade-in">
+      <template x-if="tabData.gaps">
+        <div class="glass bg-white/80 dark:bg-slate-800/80 rounded-2xl p-6 border border-white/20 dark:border-slate-700/50">
+          <h3 class="text-lg font-semibold mb-4">Research Gaps Analysis</h3>
+          <template x-if="tabData.gaps.content">
+            <div class="prose dark:prose-invert max-w-none textbook-rendered font-serif" x-html="renderMarkdown(tabData.gaps.content)"></div>
+          </template>
+          <template x-if="!tabData.gaps.content">
+            <div class="text-center py-10 text-slate-500" x-text="tabData.gaps.message || 'No research gaps data available.'"></div>
+          </template>
+        </div>
+      </template>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-6 text-xs text-slate-400 dark:text-slate-600">
+    SBMA Research Dashboard &mdash; Powered by AI-driven literature analysis
+  </footer>
+
+  <script>
+    function dashboard() {
+      return {
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        activeTab: 'overview',
+        loading: false,
+        tabData: {},
+        loaded: {},
+        animatedCounters: { articles: 0, knowledge: 0, fulltext: 0, years: 0 },
+
+        // Knowledge
+        knowledgeFilter: null,
+        knowledgeSearch: '',
+        knowledgeItems: [],
+        filteredKnowledge: [],
+
+        // Textbook
+        activeChapter: null,
+        readingProgress: 0,
+
+        // Articles
+        articleSearch: '',
+        articleSort: 'year',
+        articleOrder: 'desc',
+        articleData: { articles: [], total: 0, page: 1, per_page: 25, total_pages: 1 },
+        expandedArticle: null,
+
+        // Digests
+        activeReportId: null,
+        activeReport: null,
+
+        tabs: [
+          { id: 'overview', label: 'Overview' },
+          { id: 'publications', label: 'Publications' },
+          { id: 'authors', label: 'Authors' },
+          { id: 'citations', label: 'Citations' },
+          { id: 'journals', label: 'Journals' },
+          { id: 'topics', label: 'Topics' },
+          { id: 'types', label: 'Article Types' },
+          { id: 'knowledge', label: 'Knowledge' },
+          { id: 'textbook', label: 'Textbook' },
+          { id: 'articles', label: 'Articles' },
+          { id: 'digests', label: 'Digests' },
+          { id: 'gaps', label: 'Research Gaps' },
+        ],
+
+        endpoints: {
+          overview: '/api/overview',
+          publications: '/api/publications-by-year',
+          authors: '/api/top-authors',
+          citations: '/api/citations',
+          journals: '/api/journals',
+          topics: '/api/topic-evolution',
+          types: '/api/article-types',
+          knowledge: '/api/knowledge',
+          textbook: '/api/textbook',
+          digests: '/api/reports',
+          gaps: '/api/gaps',
+        },
+
+        init() {
+          this.switchTab('overview');
+          window.addEventListener('scroll', () => {
+            if (this.activeTab === 'textbook') this.updateReadingProgress();
+          });
+        },
+
+        switchTab(tabId) {
+          this.activeTab = tabId;
+          if (tabId === 'articles') {
+            if (!this.loaded.articles) { this.loaded.articles = true; this.loadArticles(1); }
+            return;
+          }
+          if (!this.loaded[tabId] && this.endpoints[tabId]) {
+            this.loading = true;
+            this.loaded[tabId] = true;
+            fetch(this.endpoints[tabId])
+              .then(r => r.json())
+              .then(data => {
+                this.tabData[tabId] = data;
+                this.loading = false;
+                this.$nextTick(() => this.postRender(tabId, data));
+              })
+              .catch(err => {
+                console.error('Error loading', tabId, err);
+                this.loading = false;
+              });
+          }
+        },
+
+        postRender(tabId, data) {
+          const isDark = this.darkMode;
+          const baseBg = isDark ? 'rgba(15,23,42,0)' : 'rgba(255,255,255,0)';
+          const textColor = isDark ? '#e2e8f0' : '#334155';
+          const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(148,163,184,0.15)';
+          const baseLayout = {
+            paper_bgcolor: baseBg,
+            plot_bgcolor: baseBg,
+            font: { color: textColor, family: 'system-ui, -apple-system, sans-serif' },
+            xaxis: { gridcolor: gridColor, zerolinecolor: gridColor },
+            yaxis: { gridcolor: gridColor, zerolinecolor: gridColor },
+          };
+
+          if (tabId === 'overview') {
+            this.animateCounters(data);
+            const years = Object.keys(data.articles_by_year).map(Number).sort((a,b) => a-b);
+            const counts = years.map(y => data.articles_by_year[y]);
+            Plotly.newPlot('overview-chart', [{
+              x: years, y: counts, type: 'bar',
+              marker: { color: years.map((_, i) => `rgba(6,182,212,${0.4 + (i/years.length)*0.6})`) },
+              hovertemplate: '<b>%{x}</b><br>%{y} articles<extra></extra>',
+            }], {
+              ...baseLayout,
+              margin: { t: 20, b: 40, l: 50, r: 20 },
+              xaxis: { ...baseLayout.xaxis, title: { text: 'Year', font: { size: 12 } } },
+              yaxis: { ...baseLayout.yaxis, title: { text: 'Articles', font: { size: 12 } } },
+            }, { responsive: true, displayModeBar: false });
+          }
+
+          else if (tabId === 'publications' && data.chart) {
+            const d = data.chart.data;
+            if (d[0]) {
+              const n = d[0].x ? d[0].x.length : 0;
+              d[0].marker = { color: d[0].x ? d[0].x.map((_, i) => `rgba(6,182,212,${0.4 + (i/n)*0.6})`) : '#06b6d4' };
+              d[0].hovertemplate = '<b>%{x}</b><br>%{y} articles<extra></extra>';
+            }
+            if (d[1]) {
+              d[1].line = { color: '#8b5cf6', width: 3 };
+              d[1].marker = { color: '#8b5cf6', size: 5 };
+              d[1].hovertemplate = '<b>%{x}</b><br>Cumulative: %{y}<extra></extra>';
+            }
+            const layout = {
+              ...data.chart.layout, ...baseLayout,
+              margin: { t: 20, b: 50, l: 60, r: 60 },
+              xaxis: { ...baseLayout.xaxis, ...data.chart.layout.xaxis, rangeslider: { visible: true, thickness: 0.05 } },
+              yaxis: { ...baseLayout.yaxis, ...data.chart.layout.yaxis },
+              yaxis2: { ...data.chart.layout.yaxis2, gridcolor: 'transparent', zerolinecolor: 'transparent' },
+            };
+            Plotly.newPlot('pub-chart', d, layout, { responsive: true });
+          }
+
+          else if (tabId === 'authors') {
+            fetch('/api/author-network').then(r => r.json()).then(nd => {
+              const el = document.getElementById('author-network-chart');
+              if (!el) return;
+              if (nd.chart) {
+                if (nd.chart.data[1]) {
+                  nd.chart.data[1].marker.color = '#06b6d4';
+                  nd.chart.data[1].marker.line = { width: 1.5, color: isDark ? '#1e293b' : '#fff' };
+                }
+                if (nd.chart.data[0]) nd.chart.data[0].line.color = isDark ? '#475569' : '#cbd5e1';
+                Plotly.newPlot('author-network-chart', nd.chart.data, {
+                  ...nd.chart.layout, ...baseLayout,
+                  margin: { t: 10, l: 5, r: 5, b: 5 },
+                }, { responsive: true, displayModeBar: false });
+              } else {
+                el.innerHTML = '<div class="text-center py-10 text-slate-500">' + (nd.message || 'No network data.') + '</div>';
+              }
+            });
+          }
+
+          else if (tabId === 'citations' && data.chart) {
+            const d = data.chart.data;
+            if (d[0]) {
+              d[0].marker = {
+                color: d[0].x ? d[0].x.map((v, i) => {
+                  const t = i / (d[0].x.length || 1);
+                  return `rgba(${Math.round(6+t*133)},${Math.round(182-t*100)},${Math.round(212-t*50)},0.85)`;
+                }) : '#06b6d4',
+              };
+              d[0].hovertemplate = '<b>%{y}</b><br>Citations: %{x}<extra></extra>';
+            }
+            Plotly.newPlot('cite-chart', d, {
+              ...data.chart.layout, ...baseLayout,
+              margin: { ...data.chart.layout.margin, t: 10 },
+            }, { responsive: true });
+          }
+
+          else if (tabId === 'journals' && data.chart) {
+            const d = data.chart.data;
+            if (d[0]) {
+              const n = d[0].x ? d[0].x.length : 1;
+              d[0].marker = { color: d[0].x ? d[0].x.map((_, i) => `rgba(139,92,246,${0.4 + ((n-i)/n)*0.6})`) : '#8b5cf6' };
+              d[0].hovertemplate = '<b>%{y}</b><br>%{x} articles<extra></extra>';
+            }
+            Plotly.newPlot('journal-chart', d, {
+              ...data.chart.layout, ...baseLayout,
+              margin: { ...data.chart.layout.margin, t: 10 },
+            }, { responsive: true });
+          }
+
+          else if (tabId === 'topics' && data.chart) {
+            Plotly.newPlot('topic-chart', data.chart.data, {
+              ...data.chart.layout, ...baseLayout,
+              margin: { ...data.chart.layout.margin, t: 10 },
+            }, { responsive: true });
+          }
+
+          else if (tabId === 'types' && data.chart) {
+            const d = data.chart.data;
+            const areaColors = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899', '#6366f1', '#14b8a6', '#f97316', '#64748b'];
+            d.forEach((trace, i) => {
+              trace.type = 'scatter';
+              trace.mode = 'none';
+              trace.stackgroup = 'one';
+              trace.fillcolor = areaColors[i % areaColors.length] + '80';
+              trace.line = { color: areaColors[i % areaColors.length], width: 1 };
+              trace.hovertemplate = '<b>' + (trace.name || '') + '</b><br>%{x}: %{y} articles<extra></extra>';
+            });
+            Plotly.newPlot('types-chart', d, {
+              ...data.chart.layout, ...baseLayout,
+              margin: { t: 10, b: 40, l: 50, r: 20 },
+            }, { responsive: true });
+          }
+
+          else if (tabId === 'knowledge') {
+            this.knowledgeItems = data.items || [];
+            this.filteredKnowledge = [...this.knowledgeItems];
+          }
+
+          else if (tabId === 'textbook') {
+            const chapters = data.chapters || {};
+            const keys = Object.keys(chapters);
+            if (keys.length > 0 && !this.activeChapter) this.activeChapter = keys[0];
+          }
+
+          else if (tabId === 'digests') {
+            const reports = data.reports || [];
+            if (reports.length > 0) this.loadReportDetail(reports[0].id);
+          }
+        },
+
+        // Animated counters
+        animateCounters(data) {
+          const targets = {
+            articles: data.article_count || 0,
+            knowledge: data.knowledge_count || 0,
+            fulltext: data.fulltext_count || 0,
+            years: Object.keys(data.articles_by_year || {}).length,
+          };
+          const duration = 1200;
+          const steps = 40;
+          const interval = duration / steps;
+          let step = 0;
+          const timer = setInterval(() => {
+            step++;
+            const progress = step / steps;
+            const ease = 1 - Math.pow(1 - progress, 3);
+            this.animatedCounters.articles = Math.round(targets.articles * ease);
+            this.animatedCounters.knowledge = Math.round(targets.knowledge * ease);
+            this.animatedCounters.fulltext = Math.round(targets.fulltext * ease);
+            this.animatedCounters.years = Math.round(targets.years * ease);
+            if (step >= steps) clearInterval(timer);
+          }, interval);
+        },
+
+        // Knowledge
+        loadKnowledge() {
+          const url = this.knowledgeFilter
+            ? `/api/knowledge?type=${encodeURIComponent(this.knowledgeFilter)}`
+            : '/api/knowledge';
+          fetch(url).then(r => r.json()).then(data => {
+            this.knowledgeItems = data.items || [];
+            this.filterKnowledgeLocal();
+          });
+        },
+
+        filterKnowledgeLocal() {
+          const q = this.knowledgeSearch.toLowerCase();
+          if (!q) { this.filteredKnowledge = [...this.knowledgeItems]; return; }
+          this.filteredKnowledge = this.knowledgeItems.filter(k =>
+            (k.summary && k.summary.toLowerCase().includes(q)) ||
+            (k.details && k.details.toLowerCase().includes(q)) ||
+            (k.knowledge_type && k.knowledge_type.toLowerCase().includes(q)) ||
+            (k.pmid && k.pmid.toLowerCase().includes(q))
+          );
+        },
+
+        // Articles
+        loadArticles(page) {
+          if (page < 1) return;
+          const params = new URLSearchParams({
+            page: page,
+            per_page: 25,
+            search: this.articleSearch,
+            sort: this.articleSort,
+            order: this.articleOrder,
+          });
+          fetch(`/api/articles?${params}`).then(r => r.json()).then(data => {
+            this.articleData = data;
+            this.expandedArticle = null;
+          });
+        },
+
+        sortArticles(field) {
+          if (this.articleSort === field) {
+            this.articleOrder = this.articleOrder === 'desc' ? 'asc' : 'desc';
+          } else {
+            this.articleSort = field;
+            this.articleOrder = 'desc';
+          }
+          this.loadArticles(1);
+        },
+
+        // Digests
+        loadReportDetail(id) {
+          this.activeReportId = id;
+          fetch(`/api/reports/${id}`).then(r => r.json()).then(data => {
+            if (!data.error) this.activeReport = data;
+          });
+        },
+
+        // Textbook helpers
+        renderTextbookContent(content) {
+          if (!content) return '';
+          let html = this.renderMarkdown(content);
+          html = html.replace(/\[PMID[:\s]*(\d+)\]/g, '<a href="https://pubmed.ncbi.nlm.nih.gov/$1" target="_blank" class="text-cyan-500 hover:text-cyan-400">PMID:$1</a>');
+          return html;
+        },
+
+        renderMarkdown(text) {
+          if (!text) return '';
+          try {
+            if (typeof marked !== 'undefined') {
+              if (marked.parse) return marked.parse(text);
+              return marked(text);
+            }
+          } catch (e) {}
+          return '<pre style="white-space:pre-wrap;font-family:inherit;">' + this.escapeHtml(text) + '</pre>';
+        },
+
+        escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        },
+
+        updateReadingProgress() {
+          const scrollTop = window.scrollY;
+          const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+          this.readingProgress = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        },
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+.env
+*.db
+__pycache__/
+*.pyc
+logs/
+outputs/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+data/checkpoints/
+data/fulltext/
+data/pdfs/
+data/raw_xml/

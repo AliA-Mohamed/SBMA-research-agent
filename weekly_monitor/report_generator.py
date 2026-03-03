@@ -1,0 +1,190 @@
+"""Generate weekly research digest reports."""
+
+import sys
+from datetime import datetime, date
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+import config
+from logger import setup_logger
+from database.db_manager import DBManager
+
+logger = setup_logger("report_generator")
+
+
+class ReportGenerator:
+    """Generates weekly SBMA research digest reports."""
+
+    def __init__(self):
+        self.db = DBManager()
+
+    def generate_report(self, new_articles: list[dict], novelty_scores: list[dict]) -> str:
+        """Generate a weekly digest report.
+
+        Args:
+            new_articles: List of new article dicts.
+            novelty_scores: List of novelty scoring results from NoveltyScorer.
+
+        Returns:
+            Path to the generated report file.
+        """
+        report_date = date.today()
+        report_lines = [
+            f"# SBMA Research Weekly Digest — {report_date.strftime('%B %d, %Y')}",
+            "",
+            f"## New Articles This Week: {len(new_articles)}",
+            "",
+        ]
+
+        # Build score lookup
+        score_map = {s.get("pmid", ""): s for s in novelty_scores}
+
+        # Categorize articles
+        high_impact = []
+        confirmatory = []
+        contradictions = []
+        reviews = []
+        clinical_trials = []
+        other = []
+
+        for article in new_articles:
+            pmid = article.get("pmid", "")
+            score = score_map.get(pmid, {})
+            category = score.get("category", "other")
+            entry = {**article, "score": score}
+
+            if category == "high_impact":
+                high_impact.append(entry)
+            elif category == "confirmatory":
+                confirmatory.append(entry)
+            elif category == "contradiction":
+                contradictions.append(entry)
+            elif category == "review":
+                reviews.append(entry)
+            elif category == "clinical_trial":
+                clinical_trials.append(entry)
+            else:
+                other.append(entry)
+
+        # High Impact Findings
+        report_lines.append("### High Impact Findings")
+        if high_impact:
+            for a in high_impact:
+                report_lines.extend(self._format_article_entry(a))
+        else:
+            report_lines.append("*No high-impact findings this week.*")
+        report_lines.append("")
+
+        # Confirmatory Studies
+        report_lines.append("### Confirmatory Studies")
+        if confirmatory:
+            for a in confirmatory:
+                report_lines.extend(self._format_article_entry(a))
+        else:
+            report_lines.append("*No confirmatory studies this week.*")
+        report_lines.append("")
+
+        # Contradictions or Surprises
+        report_lines.append("### Contradictions or Surprises")
+        if contradictions:
+            for a in contradictions:
+                report_lines.extend(self._format_article_entry(a))
+        else:
+            report_lines.append("*No contradictions or surprises this week.*")
+        report_lines.append("")
+
+        # Reviews & Meta-analyses
+        report_lines.append("### Reviews & Meta-analyses")
+        if reviews:
+            for a in reviews:
+                report_lines.extend(self._format_article_entry(a))
+        else:
+            report_lines.append("*No new reviews this week.*")
+        report_lines.append("")
+
+        # Clinical Trial Updates
+        report_lines.append("### Clinical Trial Updates")
+        if clinical_trials:
+            for a in clinical_trials:
+                report_lines.extend(self._format_article_entry(a))
+        else:
+            report_lines.append("*No clinical trial updates this week.*")
+        report_lines.append("")
+
+        # Open Questions Raised
+        report_lines.append("### Open Questions Raised")
+        questions = []
+        for score in novelty_scores:
+            qs = score.get("new_questions_raised") or score.get("New Questions Raised") or []
+            if isinstance(qs, list):
+                questions.extend(qs)
+            elif isinstance(qs, str) and qs:
+                questions.append(qs)
+        if questions:
+            for q in questions:
+                report_lines.append(f"- {q}")
+        else:
+            report_lines.append("*No new questions raised this week.*")
+        report_lines.append("")
+
+        # Other articles
+        if other:
+            report_lines.append("### Other Publications")
+            for a in other:
+                report_lines.extend(self._format_article_entry(a))
+            report_lines.append("")
+
+        # Field Trends
+        report_lines.extend([
+            "### Field Trends",
+            f"- Total SBMA articles in database: {self.db.get_article_count()}",
+            f"- New this week: {len(new_articles)}",
+            "",
+            "---",
+            f"*Generated by SBMA Research Agent on {datetime.now().strftime('%Y-%m-%d %H:%M')}*",
+        ])
+
+        report_content = "\n".join(report_lines)
+
+        # Save report
+        report_filename = f"weekly_digest_{report_date.isoformat()}.md"
+        report_path = config.WEEKLY_REPORTS_DIR / report_filename
+        report_path.write_text(report_content)
+
+        # Store in database
+        self.db.add_weekly_report({
+            "report_date": report_date,
+            "new_articles_found": len(new_articles),
+            "articles": [a.get("pmid", "") for a in new_articles],
+            "summary": report_content[:2000],
+            "novelty_analysis": str([s.get("key_takeaway", "") for s in novelty_scores]),
+            "report_path": str(report_path),
+        })
+
+        logger.info(f"Weekly report saved to {report_path}")
+        return str(report_path)
+
+    def _format_article_entry(self, article: dict) -> list[str]:
+        """Format a single article for the report."""
+        score = article.get("score", {})
+        lines = []
+
+        authors = article.get("authors", [])
+        first_author = ""
+        if authors:
+            a = authors[0]
+            first_author = a.get("name", "") if isinstance(a, dict) else str(a)
+
+        lines.append(f"**{article.get('title', 'Untitled')}**")
+        lines.append(f"  - *{first_author} et al.* — {article.get('journal', '')} ({article.get('publication_year', '')})")
+        lines.append(f"  - PMID: {article.get('pmid', 'N/A')}")
+
+        novelty = score.get("novelty_score") or score.get("Novelty Score (1-10)", "N/A")
+        lines.append(f"  - Novelty Score: {novelty}/10")
+
+        takeaway = score.get("key_takeaway") or score.get("Key Takeaway", "")
+        if takeaway:
+            lines.append(f"  - Key Takeaway: {takeaway}")
+
+        lines.append("")
+        return lines
