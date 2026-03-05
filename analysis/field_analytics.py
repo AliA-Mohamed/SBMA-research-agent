@@ -307,7 +307,7 @@ class FieldAnalytics:
         logger.info("Article type trends generated")
 
     def author_stats(self):
-        """Compute and store author analytics."""
+        """Compute and store author analytics including h-index."""
         session = self.db.get_session()
         try:
             from database.models import Article
@@ -319,6 +319,8 @@ class FieldAnalytics:
 
         for article in articles:
             authors = article.authors or []
+            citation_count = article.citation_count or 0
+
             for idx, author in enumerate(authors):
                 name = author.get("name", "") if isinstance(author, dict) else str(author)
                 if not name:
@@ -332,10 +334,12 @@ class FieldAnalytics:
                         "last_author_papers": 0,
                         "affiliations": set(),
                         "years": set(),
+                        "citation_counts": [],
                     }
 
                 ad = author_data[name]
                 ad["total_papers"] += 1
+                ad["citation_counts"].append(citation_count)
                 if idx == 0:
                     ad["first_author_papers"] += 1
                 if idx == len(authors) - 1 and len(authors) > 1:
@@ -351,11 +355,22 @@ class FieldAnalytics:
         for name, data in author_data.items():
             years = sorted(data["years"])
             active_years = f"{years[0]}-{years[-1]}" if years else ""
+
+            # Compute h-index: h papers with >= h citations each
+            citations_sorted = sorted(data["citation_counts"], reverse=True)
+            h_index = 0
+            for i, c in enumerate(citations_sorted):
+                if c >= i + 1:
+                    h_index = i + 1
+                else:
+                    break
+
             self.db.upsert_author_analytics({
                 "author_name": name,
                 "total_papers": data["total_papers"],
                 "first_author_papers": data["first_author_papers"],
                 "last_author_papers": data["last_author_papers"],
+                "h_index_in_field": h_index,
                 "affiliations": list(data["affiliations"])[:10],
                 "active_years": active_years,
             })

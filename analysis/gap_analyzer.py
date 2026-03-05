@@ -78,13 +78,19 @@ class GapAnalyzer:
         )
 
         try:
-            content = call_llm(
-                prompt=prompt,
-                mode="synthesis",
-                json_mode=True,
-                max_tokens=8192,
-                temperature=0.3,
-            )
+            # Force Claude for gap analysis — higher quality than Gemini Flash Lite
+            original_backend = config.LLM_BACKEND
+            config.LLM_BACKEND = "claude"
+            try:
+                content = call_llm(
+                    prompt=prompt,
+                    mode="synthesis",
+                    json_mode=True,
+                    max_tokens=8192,
+                    temperature=0.3,
+                )
+            finally:
+                config.LLM_BACKEND = original_backend
 
             # Try to parse as JSON
             result = parse_json_response(content)
