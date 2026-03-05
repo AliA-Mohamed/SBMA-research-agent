@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """On-demand: run field analytics and generate visualizations."""
 
+import sys
 import argparse
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from rich.console import Console
 
 from logger import setup_logger

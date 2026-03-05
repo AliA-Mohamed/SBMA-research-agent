@@ -1,0 +1,340 @@
+10956559	Detection of aneuploidy in chromosomes X, Y, 13, 18 and 21 by QF-PCR in 662 selected pregnancies at risk.
+12900013	New members of the Escherichia coli sigmaE regulon identified by a two-plasmid system.
+15212798	Inhibition of Salmonella enterica serovars by microcin J25.
+15555591	The microcin J25 beta-hairpin region is important for antibiotic uptake but not for RNA polymerase and respiration inhibition.
+16242870	Bio-effect monitoring using a [(15)N]methacetin test as diagnostic tool to monitor remediation effects in an industrially polluted region.
+16489810	Highly protein-resistant coatings from well-defined diblock copolymers containing sulfobetaines.
+16621826	Microcin J25 uptake: His5 of the MccJ25 lariat ring is involved in interaction with the inner membrane MccJ25 transporter protein SbmA.
+16771329	Surface grafted sulfobetaine polymers via atom transfer radical polymerization as superlow fouling coatings.
+17206797	Development of biocompatible interpenetrating polymer networks containing a sulfobetaine-based polymer and a segmented polyurethane for protein resist
+17400747	Microcin J25 has dual and independent mechanisms of action in Escherichia coli: RNA polymerase inhibition and increased superoxide production.
+17604099	Inhibition of bacterial adhesion and biofilm formation on zwitterionic surfaces.
+17725560	Role of the Escherichia coli SbmA in the antimicrobial activity of proline-rich peptides.
+18393546	Physical, chemical, and chemical-physical double network of zwitterionic hydrogels.
+18399670	A highly stable nonbiofouling surface with well-packed grafted zwitterionic polysulfobetaine for plasma protein repulsion.
+18519732	Mechanism and fitness costs of PR-39 resistance in Salmonella enterica serovar Typhimurium LT2.
+18722010	Blood compatibility of surfaces with superlow protein adsorption.
+19074376	Essential role for the BacA protein in the uptake of a truncated eukaryotic peptide in Sinorhizobium meliloti.
+1917866	Specific DNA binding of the TraM protein to the oriT region of plasmid R100.
+19199920	The structure and biological aspects of peptide antibiotic microcin J25.
+19572632	Dual-thermoresponsive phase behavior of blood compatible zwitterionic copolymers containing nonionic poly(N-isopropyl acrylamide).
+19689148	Polysulfobetaine-grafted surfaces as environmentally benign ultralow fouling marine coatings.
+19830448	Validity of new biomarkers of internal dose for use in the biological monitoring of occupational and environmental exposure to low concentrations of b
+19843311	The Ile13 residue of microcin J25 is essential for recognition by the receptor FhuA, but not by the inner membrane transporter SbmA.
+20201492	Tunable bioadhesive copolymer hydrogels of thermoresponsive poly(N-isopropyl acrylamide) containing zwitterionic polysulfobetaine.
+20215041	Ultrasonic degradation of poly (styrene-co-alkyl methacrylate) copolymers.
+20356236	A novel electrolyte-responsive membrane with tunable permeation selectivity for protein purification.
+20668224	The bacA gene homolog, mlr7400, in Mesorhizobium loti MAFF303099 is dispensable for symbiosis with Lotus japonicus but partially capable of supporting
+20802073	Sensitization of microcin J25-resistant strains by a membrane-permeabilizing peptide.
+22059984	Bioconjugation of protein-repellent zwitterionic polymer brushes grafted from silicon nitride.
+22077421	Surface modification with poly(sulfobetaine methacrylate-co-acrylic acid) to reduce fibrinogen adsorption, platelet adhesion, and plasma coagulation.
+22506651	Universal surface-initiated polymerization of antifouling zwitterionic brushes using a mussel-mimetic peptide initiator.
+22985881	Bacterial resistance to antisense peptide phosphorodiamidate morpholino oligomers.
+23138594	Role of SbmA in the uptake of peptide nucleic acid (PNA)-peptide conjugates in E. coli.
+23176498	Microcins in action: amazing defence strategies of Enterobacteria.
+23176513	The role of bacterial membrane proteins in the internalization of microcin MccJ25 and MccB17.
+23500725	Surface conjugation of zwitterionic polymers to inhibit cell adhesion and protein adsorption.
+23573953	Controlled protein absorption and cell adhesion on polymer-brush-grafted poly(3,4-ethylenedioxythiophene) films.
+23634875	Macrophage environment turns otherwise MccJ25-resistant Salmonella into sensitive.
+23909655	Application of the copolymers containing sulfobetaine methacrylate in protein separation by capillary electrophoresis.
+23978443	Maternal and cord blood miR-223 expression associates with prenatal tobacco smoke exposure and low regulatory T-cell numbers.
+24035922	Different ataxin-3 amyloid aggregates induce intracellular Ca(2+) deregulation by different mechanisms in cerebellar granule cells.
+24078610	Functional characterization of SbmA, a bacterial inner membrane transporter required for importing the antimicrobial peptide Bac7(1-35).
+24078611	Functional and structural study of the dimeric inner membrane protein SbmA.
+24214946	Enteric YaiW is a surface-exposed outer membrane lipoprotein that affects sensitivity to an antimicrobial peptide.
+24513459	Bacterial resistance control on mineral surfaces of hydroxyapatite and human teeth via surface charge-driven antifouling coatings.
+24590485	Mechanism of Escherichia coli resistance to Pyrrhocoricin.
+24708481	Surface modification by grafting of poly(SBMA-co-AEMA)-g-PDA coating and its application in CE.
+24794801	Bacterial resistance of self-assembled surfaces using PPOm-b-PSBMAn zwitterionic copolymer - concomitant effects of surface topography and surface che
+25042406	Dual thermo- and pH-responsive zwitterionic sulfobataine copolymers for oral delivery system.
+25068977	Enhanced CO2 permeability of membranes by incorporating polyzwitterion@CNT composite particles into polyimide matrix.
+25420156	Catechol chemistry inspired approach to construct self-cross-linked polymer nanolayers as versatile biointerfaces.
+25463508	The fabrication of superlow protein absorption zwitterionic coating by electrochemically mediated atom transfer radical polymerization and its applica
+25469315	Peptide-modified zwitterionic porous hydrogels for endothelial cell and vascular engineering.
+25525837	Effect of size and N-terminal residue characteristics on bacterial cell penetration and antibacterial activity of the proline-rich peptide Bac7.
+25631276	Surface modification of titanium substrate with a novel covalently-bound copolymer thin film for improving its platelet compatibility.
+25638723	An intuitive thermal-induced surface zwitterionization for versatile, well-controlled haemocompatible organic and inorganic materials.
+25650890	Tea stains-inspired initiator primer for surface grafting of antifouling and antimicrobial polymer brush coatings.
+25912841	Applying thermosettable zwitterionic copolymers as general fouling-resistant and thermal-tolerant biomaterial interfaces.
+25913777	Surface charge control for zwitterionic polymer brushes: Tailoring surface properties to antifouling applications.
+26159055	Probing the Surface Hydration of Nonfouling Zwitterionic and PEG Materials in Contact with Proteins.
+26169420	Influence of the yjiL-mdtM Gene Cluster on the Antibacterial Activity of Proline-Rich Antimicrobial Peptides Overcoming Escherichia coli Resistance In
+26195597	Enzymatic Synthesis and Functional Characterization of Bioactive Microcin C-Like Compounds with Altered Peptide Sequence and Length.
+26860543	Inner membrane proteins YgdD and SbmA are required for the complete susceptibility of 
+26938833	Antibacterial Peptide Nucleic Acid-Antimicrobial Peptide (PNA-AMP) Conjugates: Antisense Targeting of Fatty Acid Biosynthesis.
+27045347	Zwitterionic surface grafting of epoxylated sulfobetaine copolymers for the development of stealth biomaterial interfaces.
+27118187	Functionalization of Polydopamine via the Aza-Michael Reaction for Antimicrobial Interfaces.
+27142255	Protein diffusion characteristics in the hydrogels of poly(ethylene glycol) and zwitterionic poly(sulfobetaine methacrylate) (pSBMA).
+27449938	Proline-rich Antimicrobial Peptides Optimized for Binding to Escherichia coli Chaperone DnaK.
+27459415	Different in vitro and in vivo behaviors between Poly(carboxybetaine methacrylate) and poly(sulfobetaine methacrylate).
+27553234	Characterisation of Conformational and Ligand Binding Properties of Membrane Proteins Using Synchrotron Radiation Circular Dichroism (SRCD).
+27591729	A versatile approach towards multi-functional surfaces via covalently attaching hydrogel thin layers.
+28001451	MGMT hypomethylation is associated with DNA damage in workers exposed to low-dose benzene.
+28050608	An in situ poly(carboxybetaine) hydrogel for tissue engineering applications.
+28137800	The Mechanism of Killing by the Proline-Rich Peptide Bac7(1-35) against Clinical Strains of Pseudomonas aeruginosa Differs from That against Other Gra
+28169391	An anti-fouling nanoplasmonic SERS substrate for trapping and releasing a cationic fluorescent tag from human blood solution.
+28230374	Dual Thermoresponsive Aggregation of Schizophrenic PDMAEMA-b-PSBMA Copolymer with an Unrepeatable pH Response and a Recycled CO
+28448024	Synthesis of Hydrogels with Antifouling Properties As Membranes for Water Purification.
+28452489	Construction of Hierarchical Fouling Resistance Surfaces onto Poly(vinylidene fluoride) Membranes for Combating Membrane Biofouling.
+28531880	Controlled release of moxifloxacin from intraocular lenses modified by Ar plasma-assisted grafting with AMPS or SBMA: An in vitro study.
+28671816	Photopolymerizable Zwitterionic Polymer Patterns Control Cell Adhesion and Guide Neural Growth.
+28717895	Correlating uptake and activity of proline-rich antimicrobial peptides in Escherichia coli.
+28799461	Preparation and characterization of protein-resistant hydrogels for soft contact lens applications via radical copolymerization involving a zwitterion
+28830143	Epoxylated Zwitterionic Triblock Copolymers Grafted onto Metallic Surfaces for General Biofouling Mitigation.
+28957747	Integrating zwitterionic polymer and Ag nanoparticles on polymeric membrane surface to prepare antifouling and bactericidal surface via Schiff-based l
+29025659	Multi-responsive hydrogels with UCST- and LCST-induced shrinking and controlled release behaviors of rhodamine B.
+29083230	Marine antifouling performance of polymer coatings incorporating zwitterions.
+29162869	Novel, one-step synthesis of zwitterionic polymer nanoparticles via distillation-precipitation polymerization and its application for dye removal memb
+29182016	Improved antifouling properties of photobioreactors by surface grafted sulfobetaine polymers.
+29329756	Phospholipid composition of the outer membrane of Escherichia coli influences its susceptibility against antimicrobial peptide apidaecin 1b.
+29449959	Sulfobetaine methacrylate hydrogel-coated anti-fouling surfaces for implantable biomedical devices.
+29526712	The Dolphin Proline-Rich Antimicrobial Peptide Tur1A Inhibits Protein Synthesis by Targeting the Bacterial Ribosome.
+29535009	Sulfated zwitterionic poly(sulfobetaine methacrylate) hydrogels promote complete skin regeneration.
+29738230	Superior Bioinert Capability of Zwitterionic Poly(4-vinylpyridine propylsulfobetaine) Withstanding Clinical Sterilization for Extended Medical Applica
+29844040	Fragments of the Nonlytic Proline-Rich Antimicrobial Peptide Bac5 Kill Escherichia coli Cells by Inhibiting Protein Synthesis.
+29925240	Bioinert Control of Zwitterionic Poly(ethylene terephtalate) Fibrous Membranes.
+30089354	Self-Cleaning Interfaces of Polydimethylsiloxane Grafted with pH-Responsive Zwitterionic Copolymers.
+30107735	Ionic-Strength Responsive Zwitterionic Copolymer Hydrogels with Tunable Swelling and Adsorption Behaviors.
+30145900	Bioinspired Polydopamine/Polyzwitterion Coatings for Underwater Anti-Oil and -Freezing Surfaces.
+30188680	Zwitterionic Polymer Modified Porous Carbon for High-Performance and Antifouling Capacitive Desalination.
+30384609	Quantifying the Oligomeric States of Membrane Proteins in Cells through Super-Resolution Localizations.
+30516978	Matrix-Assisted Regulation of Antimicrobial Properties: Mechanistic Elucidation with Ciprofloxacin-Based Polymeric Hydrogel Against Vibrio Species.
+30555455	Combined Antibacterial Effects of Goat Cathelicidins With Different Mechanisms of Action.
+30905896	Antimicrobial Activities of Cysteine-rich Peptides Specific to Bacteriocytes of the Pea Aphid Acyrthosiphon pisum.
+30960176	Synthesis of Zwitterionic Copolymers via Copper-Mediated Aqueous Living Radical Grafting Polymerization on Starch.
+31022343	Rechargeable Antibacterial N-Halamine Films with Antifouling Function for Food Packaging Applications.
+31059214	Co-Deposition of Stimuli-Responsive Microgels with Foulants During Ultrafiltration as a Fouling Removal Strategy.
+31147020	Fabrication of a polypropylene immunoassay platform by photografting reaction.
+31185382	Facile synthesis of macroporous zwitterionic hydrogels templated from graphene oxide-stabilized aqueous foams.
+31209863	Identification and elucidation of proline-rich antimicrobial peptides with enhanced potency and delivery.
+31284559	Antimicrobial and Conductive Nanocellulose-Based Films for Active and Intelligent Food Packaging.
+31404491	Zwitterionic Hydrogel Incorporated Graphene Oxide Nanosheets with Improved Strength and Lubricity.
+31458896	Amphiphilic Copolymers Containing POSS and SBMA with 
+31553882	Probing Surface Hydration and Molecular Structure of Zwitterionic and Polyacrylamide Hydrogels.
+31726250	Injectable, self-healable zwitterionic cryogels with sustained microRNA - cerium oxide nanoparticle release promote accelerated wound healing.
+31863074	Incorporation of zwitterionic materials into light-curable fluoride varnish for biofilm inhibition and caries prevention.
+32012761	Zwitterion Co-Polymer PEI-SBMA Nanofiltration Membrane Modified by Fast Second Interfacial Polymerization.
+32108189	An electrospun polyurethane scaffold-reinforced zwitterionic hydrogel as a biocompatible device.
+32254318	A substrate-independent ultrathin hydrogel film as an antifouling and antibacterial layer for a microfiltration membrane anchored via a layer-by-layer
+32255065	Surface zwitterionization on versatile hydrophobic interfaces via a combined copolymerization/self-assembling process.
+32255090	Gel-like ionic complexes for antimicrobial, hemostatic and adhesive properties.
+32263909	Co-deposition towards mussel-inspired antifouling and antibacterial membranes by using zwitterionic polymers and silver nanoparticles.
+32264077	Zwitterionic copolymers bearing phosphonate or phosphonic motifs as novel metal-anchorable anti-fouling coatings.
+32264302	Importance of zwitterionic incorporation into polymethacrylate-based hydrogels for simultaneously improving optical transparency, oxygen permeability,
+32278717	Urinary biomonitoring of subjects with different smoking habits. Part I: Profiling mercapturic acids.
+32327672	One-step synthesis of zwitterionic graphene oxide nanohybrid: Application to polysulfone tight ultrafiltration hollow fiber membrane.
+32380125	Biomonitoring of the benzene metabolite s-phenylmercapturic acid and the toluene metabolite s-benzylmercapturic acid in urine from firefighters.
+32517332	Zwitterionic Polymer Brush Grafted on Polyvinylidene Difluoride Membrane Promoting Enhanced Ultrafiltration Performance with Augmented Antifouling Pro
+32532173	Enhancing antifouling property of PVA membrane by grafting zwitterionic polymer via SI-ATRP method.
+32551232	Occupational exposure to volatile organic compounds affects microRNA profiling: Towards the identification of novel biomarkers.
+32574911	Integration of photo-induced biocidal and hydrophilic antifouling functions on nanofibrous membranes with demonstrated reduction of biofilm formation.
+32787108	Peptide Inhibitors of Bacterial Protein Synthesis with Broad Spectrum and SbmA-Independent Bactericidal Activity against Clinical Pathogens.
+32810294	Bacterial multi-solute transporters.
+32822163	Surface Zwitterionization of Expanded Poly(tetrafluoroethylene) via Dopamine-Assisted Consecutive Immersion Coating.
+32899234	Superhydrophilic Coating with Antibacterial and Oil-Repellent Properties via NaIO
+32919659	Highly transparent, self-healing, injectable and self-adhesive chitosan/polyzwitterion-based double network hydrogel for potential 3D printing wearabl
+32939918	Zwitterionic Polydopamine Engineered Interface for In Vivo Sensing with High Biocompatibility.
+32940012	Ball-Bearing-Inspired Polyampholyte-Modified Microspheres as Bio-Lubricants Attenuate Osteoarthritis.
+32955799	Fatigue-Resistant, Notch-Insensitive Zwitterionic Polymer Hydrogels with High Self-Healing Ability.
+32974263	Direct and Oxidative DNA Damage in a Group of Painters Exposed to VOCs: Dose - Response Relationship.
+32975087	[Determination of Aromatic Compounds Metabolites in Human Urine by Solid Phase Extraction-liquid Chromatography-Tandem Mass Spectrometry].
+33026392	Temperature-triggered attachment and detachment of general human bio-foulants on zwitterionic polydimethylsiloxane.
+33036159	Characterization of Cetacean Proline-Rich Antimicrobial Peptides Displaying Activity against ESKAPE Pathogens.
+33041468	Maximizing the grafting of zwitterions onto the surface of ultrafiltration membranes to improve antifouling properties.
+33049896	Antifouling, antibacterial and non-cytotoxic transparent cellulose membrane with grafted zwitterion and quaternary ammonium copolymers.
+33241793	Zwitterionic hydrogel for sustained release of growth factors to enhance wound healing.
+33333542	Antifouling hydrogel-coated magnetic nanoparticles for selective isolation and recovery of circulating tumor cells.
+33418811	Zwitterionic-Based Surface via the Coelectrodeposition of Colloid Particles and Tannic Acid with Bacterial Resistance but Cell Adhesion Properties.
+33545876	Bifunctional polymer brush-grafted coronary stent for anticoagulation and endothelialization.
+33591713	Thermally Stable Bioinert Zwitterionic Sulfobetaine Interfaces Tolerated in the Medical Sterilization Process.
+33684286	Uptake, Stability, and Activity of Antisense Anti-
+33690063	Selective capture of circulating tumor cells by antifouling nanostructure substrate made of hydrogel nanoparticles.
+33913681	Harnessing Colloidal Self-Assembled Patterns (cSAPs) to Regulate Bacterial and Human Stem Cell Response at Biointerfaces 
+33914516	Enhancing the Oil-Fouling Resistance of Polymeric Membrane Ion-Selective Electrodes by Surface Modification of a Zwitterionic Polymer-Based Oleophobic
+34018681	Liquid-to-Solid Phase Transitions of Imidazolium-Based Zwitterionic Polymers Induced by Hofmeister Anions.
+34067423	Biomimetic Mineralization of Tannic Acid-Supplemented HEMA/SBMA Nanocomposite Hydrogels.
+34081428	Understanding Design Rules for Optimizing the Interface between Immobilized Enzymes and Random Copolymer Brushes.
+34118363	The proline-rich myticalins from Mytilus galloprovincialis display a membrane-permeabilizing antimicrobial mode of action.
+34201823	Cloning and Characterization of 
+34301078	Surface Modification of Polyurethane Membrane with Various Hydrophilic Monomers and N-Halamine: Surface Characterization and Antimicrobial Properties 
+34303816	Super absorbent chitosan-based hydrogel sponges as carriers for caspofungin antifungal drug.
+34310554	Zwitterionic Photografted Coatings of Cochlear Implant Biomaterials Reduce Friction and Insertion Forces.
+34314160	Discovery and Bioactivity of the Novel Lasso Peptide Microcin Y.
+34360723	Effects of Lipidation on a Proline-Rich Antibacterial Peptide.
+34453244	Levels of urinary metabolites of benzene compounds, trichloroethylene, and polycyclic aromatic hydrocarbons and their correlations with socioeconomic,
+34474880	Zwitterionic hydrogel-coated heart valves with improved endothelialization and anti-calcification properties.
+34516884	Molecular mechanism of SbmA, a promiscuous transporter exploited by antimicrobial peptides.
+34692658	Zwitterionic Hydrogel Activates Autophagy to Promote Extracellular Matrix Remodeling for Improved Pressure Ulcer Healing.
+34702446	Zwitterionic polymer modified xanthan gum with collagen II-binding capability for lubrication improvement and ROS scavenging.
+34750687	Translocation of non-lytic antimicrobial peptides and bacteria penetrating peptides across the inner membrane of the bacterial envelope.
+34752975	Forces between mica and end-grafted statistical copolymers of sulfobetaine and oligoethylene glycol in aqueous electrolyte solutions.
+34811559	Dually cross-linked single network poly(ionic liquid)/ionic liquid ionogels for a flexible strain-humidity bimodal sensor.
+34825998	Mesoporous nanomaterial-assisted hydrogel double network composite for mixed-mode liquid chromatography.
+34883021	Skin-Adaptable, Long-Lasting Moisture, and Temperature-Tolerant Hydrogel Dressings for Accelerating Burn Wound Healing without Secondary Damage.
+34928827	PSU-g-SBMA hollow fiber membrane for treatment of oily wastewater.
+34949091	Versatile, Oxygen-Insensitive Surface-Initiated Anionic Polymerization to Prepare Functional Polymer Brushes in Aqueous Solutions.
+34972139	Assessment of the performance of nonfouling polymer hydrogels utilizing citizen scientists.
+35006911	Dopamine-Initiated Photopolymerization for a Versatile Catechol-Functionalized Hydrogel.
+35016329	A Nondestructive Surface Zwitterionization of Polydimethylsiloxane for the Improved Human Blood-inert Properties.
+35056831	Electrospun Nanofiber Membranes from 1,8-Naphthimide-Based Polymer/Poly(vinyl alcohol) for pH Fluorescence Sensing.
+35319182	Dopamine-Induced Surface Zwitterionization of Expanded Poly(tetrafluoroethylene) for Constructing Thermostable Bioinert Materials.
+35328571	Influence of Substitutions in the Binding Motif of Proline-Rich Antimicrobial Peptide ARV-1502 on 70S Ribosome Binding and Antimicrobial Activity.
+35335516	Antifouling PVC Catheters by Gamma Radiation-Induced Zwitterionic Polymer Grafting.
+35362947	Composite Polyelectrolyte Photothermal Hydrogel with Anti-biofouling and Antibacterial Properties for the Real-World Application of Solar Steam Genera
+35398118	Molecular mechanism of antibiotic resistance induced by mono- and twin-chained quaternary ammonium compounds.
+35405562	High-strain sensitive zwitterionic hydrogels with swelling-resistant and controllable rehydration for sustainable wearable sensor.
+3543211	Identification, mapping, cloning and characterization of a gene (sbmA) required for microcin B17 action on Escherichia coli K12.
+35436109	Antisense Peptide Nucleic Acid-Diaminobutanoic Acid Dendron Conjugates with SbmA-Independent Antimicrobial Activity against Gram-Negative Bacteria.
+35453182	Antimicrobial Activity and 70S Ribosome Binding of Apidaecin-Derived Api805 with Increased Bacterial Uptake Rate.
+35566368	Construction of Enzyme-Responsive Micelles Based on Theranostic Zwitterionic Conjugated Bottlebrush Copolymers with Brush-on-Brush Architecture for Ce
+35576931	Electrospraying Zwitterionic Copolymers as an Effective Biofouling Control for Accurate and Continuous Monitoring of Wastewater Dynamics in a Real-Tim
+35578204	Optimization of the antimicrobial peptide Bac7 by deep mutational scanning.
+35609452	Zwitterion-modified antifouling swab joint "Snake-Eye" for detection of Salmonella in colored foodstuffs.
+35629841	A Novel Proline-Rich Cathelicidin from the Alpaca 
+35630604	A Soft Zwitterionic Hydrogel as Potential Coating on a Polyimide Surface to Reduce Foreign Body Reaction to Intraneural Electrodes.
+35709360	In Situ Chemical Modification with Zwitterionic Copolymers of Nanofiltration Membranes: Cure for the Trade-Off between Filtration and Antifouling Perf
+35733079	Microfluidic Production of Zwitterion Coating Microcapsules with Low Foreign Body Reactions for Improved Islet Transplantation.
+35964461	Preparation of reversed-phase/boronate affinity mixed-mode restricted access materials with zwitterionic polymer outer layers and its extraction prope
+36069452	Systematic Identification of CpxRA-Regulated Genes and Their Roles in Escherichia coli Stress Response.
+36098077	Layer-by-layer construction of zwitterionic/biguanide polymers on silicone rubber as an antifouling and bactericidal coating.
+36197755	Structure Elucidation, Total Synthesis, Antibacterial In Vivo Efficacy and Biosynthesis Proposal of Myxobacterial Corramycin.
+36228172	Zwitterionic Polymers Coating Antibiofouling Photoelectrochemical Aptasensor for 
+36252533	Mussel-inspired adhesive zwitterionic composite hydrogel with antioxidant and antibacterial properties for wound healing.
+36367362	Bionic Engineered Protein Coating Boosting Anti-Biofouling in Complex Biological Fluids.
+36581005	Salt sensitive purely zwitterionic physical hydrogel for prevention of postoperative tissue adhesion.
+36675967	Bactericidal Properties of Proline-Rich 
+36698325	One-Step Synthesis of Biphasic, Cavity-forming Polymer Particles via Dispersion Copolymerization of Styrene and Sulfobetaine Methacrylate.
+36790572	Ultrasensitive and Highly Stretchable Multiple-Crosslinked Ionic Hydrogel Sensors with Long-Term Stability.
+36802165	Dual-Uptake Mode of the Antibiotic Phazolicin Prevents Resistance Acquisition by Gram-Negative Bacteria.
+36869063	Effect of bacterial resistant zwitterionic derivative incorporation on the physical properties of resin-modified glass ionomer luting cement.
+36892673	Structural and Functional Characteristics of the Proline-Rich Antimicrobial Peptide Minibactenecin from Leukocytes of Domestic Goat Capra hircus.
+36896012	Zwitterionic poly(sulfobetaine methacrylate)-based hydrogel coating for drinking water distribution systems to inhibit adhesion of waterborne bacteria
+36908510	Characteristics of antimicrobial peptide OaBac5mini and its bactericidal mechanism against 
+36928386	Intermittent antibiotic treatment of bacterial biofilms favors the rapid evolution of resistance.
+36987167	Salt Transport in Crosslinked Hydrogel Membranes Containing Zwitterionic Sulfobetaine Methacrylate and Hydrophobic Phenyl Acrylate.
+37001354	Triblock copolymer-grafted restricted access materials with zwitterionic polymer outer layers for highly efficient extraction of fluoroquinolones and 
+37078123	A cyclic brush zwitterionic polymer based pH-responsive nanocarrier-mediated dual drug delivery system with lubrication maintenance for osteoarthritis
+37103865	Genomic Insights into Bacterial Resistance to Proline-Rich Antimicrobial Peptide Bac7.
+37143537	Antibiotic synergist OM19r reverses aminoglycoside resistance in multidrug-resistant 
+37232973	Rapid Preparation of Superabsorbent Self-Healing Hydrogels by Frontal Polymerization.
+37501337	Zwitterionic Granular Hydrogel for Cartilage Tissue Engineering.
+37610792	Tuning Polymer Composition Leads to Activity-Stability Tradeoff in Enzyme-Polymer Conjugates.
+37634426	Rapid hemostatic antibacterial self-gelling powder based on methacryloylsulfonyl betaine and quaternized carboxymethyl chitosan.
+37713407	Zwitterion-Modified Nanogel Responding to Temperature and Ionic Strength: A Dissipative Particle Dynamics Simulation.
+37742821	Synthesis of novel interpenetrated network for ocular co-administration of timolol maleate and dorzolamide hydrochloride drugs.
+37823839	Polydopamine-Modified MXene-Integrated Poly(
+37870210	Promoting Homogeneous Zinc-Ion Transfer Through Preferential Ion Coordination Effect in Gel Electrolyte for Stable Zinc Metal Batteries.
+37888537	Ultrasensitive Ratiometric Electrochemiluminescence Sensor with an Efficient Antifouling and Antibacterial Interface of PSBMA@SiO
+37922234	Role of echocardiography in the management of ventricular septal rupture after acute myocardial infarction.
+38023716	Tissue adhesive indocyanine green-locking granular gel-mediated photothermal therapy combined with checkpoint inhibitor for preventing postsurgical re
+38058117	Covalent bonding of quaternary ammonium compounds and zwitterionic polymer functional layers on polydimethylsiloxane against 
+38176081	Ionically annealed zwitterionic microgels for bioprinting of cartilaginous constructs.
+38237945	Sprayable Zwitterionic Antibacterial Hydrogel With High Mechanical Resilience and Robust Adhesion for Joint Wound Treatment.
+38242394	Development of anti-bacterial adhesion and antibacterial sulfobetaines modified chitosan/polyvinyl alcohol composite films as packaging materials.
+38276518	Triphenylphosphonium Analogs of Short Peptide Related to Bactenecin 7 and Oncocin 112 as Antimicrobial Agents.
+38289030	Construction of a Soft Antifouling PAA/PSBMA Hydrogel Coating with High Toughness and Low Swelling through the Dynamic Coordination Bonding Provided b
+38314692	Formation of Amphiphilic Zwitterionic Thin Poly(SBMA-
+38398663	A Versatile Approach for the Synthesis of Antimicrobial Polymer Brushes on Natural Rubber/Graphene Oxide Composite Films via Surface-Initiated Atom-Tr
+38461769	Internal multiple interactions-adsorption and external zwitterionic polymer-exclusion of restricted access materials as adsorbent for offline and onli
+38527226	Antimicrobial Lasso Peptide Cloacaenodin Utilizes a Unique TonB-Dependent Transporter to Access Susceptible Bacteria.
+38534071	Study of Hydration Repulsion of Zwitterionic Polymer Brushes Resistant to Protein Adhesion through Molecular Simulations.
+38626344	Multihydrogen Bond Modulated Polyzwitterionic Removable Adhesive Hydrogel with Antibacterial and Hemostatic Function for Wound Healing.
+38663642	Synergistic antibacterial and antifouling wound dressings: Integration of photothermal-activated no release and zwitterionic surface modification.
+38796091	A novel zwitterion incorporated Nano-crystalline ceramic and polymer for bacterial resistant dental CAD-CAM block.
+38824415	Construction of Zwitterionic Coatings with Lubricating and Antiadhesive Properties for Invisible Aligner Applications.
+38923390	Synergistic Effect of Multilayered Alginate/Poly(SBMA) Coatings on Marine Antifouling Property.
+38959395	Ureido-Ionic Liquid Mediated Conductive Hydrogel: Superior Integrated Properties for Advanced Biosensing Applications.
+38959738	Zwitterion-functionalized nanofiber-based composite proton exchange membranes with superior ionic conductivity and chemical stability for direct metha
+39029207	A fucoidan-loaded hydrogel coating for enhancing corrosion resistance, hemocompatibility and endothelial cell growth of magnesium alloy for cardiovasc
+39111482	Tunicate cellulose nanocrystal reinforced multifunctional hydrogel with super flexible, fatigue resistant, antifouling and self-adhesive capability fo
+39134927	Unveiling the Architectural Impact on the Salt-Tunable Adhesion Performance and Toughness of Polyzwitterions.
+39191104	Nanozyme-catalyzed and zwitterion-modified swabs based for the detection of Listeria monocytogenes in complex matrices.
+39236361	Biomimetic hydrogel coatings for improving the corrosion resistance, hemocompatibility, and endothelial cell growth of the magnesium alloy.
+39307081	Influence of zwitterionic amphiphilic copolymers on heterogeneous gypsum formation: A promising approach for scaling resistance.
+39318376	A Janus hydrogel that enables wet tissue adhesion and resists abdominal adhesions.
+39319480	Self-Polymerized Tough and High-Entanglement Zwitterionic Functional Hydrogels.
+39321518	UV-radiation manufacturing of natural macromolecular products salecan and tannic acid-based functional gel material as superadsorbent for toluidine bl
+39342727	Enhanced antifouling and anti-swarming properties poly (sulfobetaine methacrylate-co-2-hydroxy-3-phenoxypropyl acrylate) hydrogel coatings for urinary
+39347711	Porosity dominates over microgel stiffness for promoting chondrogenesis in zwitterionic granular hydrogels.
+39396462	Dual responsive drug-loaded nanomotor based on zwitterionic materials for the treatment of peritoneal metastatic cancer.
+39399384	Simulation-based assessment of zwitterionic pendant group variations on the hemocompatibility of polyethersulfone membranes.
+39414793	Rumicidins are a family of mammalian host-defense peptides plugging the 70S ribosome exit tunnel.
+39427956	Combined effects of benzene, toluene, xylene, ethylbenzene, and styrene exposure on hearing loss mediated by oxidative stress at realistic low levels.
+39447798	Porous chitosan quaternary ammonium salt hydrogel embedded with Cu, Ni and Pd nanoparticles for efficient coupled adsorption-catalytic reduction of me
+39509301	Closed-Perfusion Transretinal ERG Setup for Preclinical Drug and Nanostructure Testing.
+39547138	Sensorable zwitterionic antibacterial hydrogel for wound electrostimulation therapy.
+39616683	Hydrogel biomimetic skin inspired by human skin for resisting bacterial infection.
+39618000	Facile Preparation of Polymerizable Deep Eutectic Solvents Under Mild Conditions for Multisensory Ionic Skins.
+39631322	Fabrication of nanoparticle-reinforced composite hydrogel for improved durability, antifouling, and thrombosis-resistance in arteriovenous grafts.
+39666675	Zwitterionic Polymer Binder Networks with Structural Locking and Ionic Regulation Functions for High Performance Silicon Anodes.
+39694379	Novel functional hydrogels based on lignin‑silver nanoparticles with adhesion, antimicrobial, antioxidant and anti-freezing properties for wound dress
+39793778	A flexible wearable sensor based on the multiple interaction and synergistic effect of the hydrogel components with anti-freezing, low swelling for hu
+39800507	A wearable electrochemical sensor utilizing multifunctional hydrogel for antifouling ascorbic acid quantification in sweat.
+39815471	MXene/Ag-Based Zwitterionic Double-Network Hydrogels with Enhanced Mechanical Strength and Antifouling Performances.
+39835483	High-Efficiency Electrochemiluminescence Biosensor with Antifouling and Antibacterial Functions for Sensitive and Accurate Analysis of Chloramphenicol
+39871545	Effect of Hydration States on the Anti-Icing/Frosting Performance of Zwitterionic Hydrogel-Coated Surfaces.
+39891038	Strain Release via Glass Transition Temperature Regulation for Efficient and Stable Perovskite Solar Cells.
+39896280	Bivalirudin functionalized hydrogel coating capable of catalytical NO-generation for enhanced anticorrosion and biocompatibility of magnesium alloy.
+39914976	Double-network hydrogel dressing regulated by cationic polymer-grafted bacterial cellulose for promote rapid healing of infected wounds.
+39927842	Bioinert Fibrous Polypropylene Membranes via In Situ Polymerization of Zwitterionic Poly(sulfobetaine methacrylate).
+39954297	Metallo-Polyampholyte Hydrogel Based on a Y-Shaped Amphoteric Monomer with Robust Antibacterial and Antifouling Performance.
+40035593	RNA toehold switch-based reporter assay to assess bacterial uptake of antisense oligomers.
+40040245	Protein Interaction with Zwitterionic Spherical Polyelectrolyte Brushes as Observed by Small Angle X-ray Scattering.
+40061074	Preparation of hydrophilic and antifouling coatings 
+40144306	Super-lubricous polyethylene glycol hydrogel microspheres for use in knee osteoarthritis treatments.
+40161323	Strain-dependent emergence of aminoglycoside resistance in 
+40223547	Waterborne Polyurethane-Stabilized Hydrogel Coating with Lubrication and Antibacterial Properties on Medical Catheters.
+40231592	Ceria Centre to Enhance Multi-Active and Photothermal Response Janus Patch for Chronic Wound Senescence Inhibition and Repair.
+40233481	Naringenin-loaded SBMA/GelMA hydrogel: Restoring immune balance and promoting angiogenesis via the PPARα/STING pathway in diabetic wounds.
+40238647	Taxonomic distribution of SbmA/BacA and BacA-like antimicrobial peptide transporters suggests independent recruitment and convergent evolution in host
+40308188	A dynamic zwitterionic degradable hydrogel niche for efficient stem cell expansion and recovery.
+40328482	Organic Fouling on Zwitterionic Amphiphilic Copolymers: Implications in Biofouling.
+40333492	Anti-Swelling Aramid-Nanofiber-Reinforced Zwitterionic Polymer Hydrogel for Strain Sensors.
+40368546	Biomass-derived CMC-reinforced zwitterionic organohydrogel for wearable strain sensors: Achieving superior stretchability, adhesion, and anti-freezing
+40368567	High toughness, high stability and low hysteresis PVA /HPMC/PA/SBMA/ZnCl
+40370188	Hydrogel Electrolyte With Ultrahigh Water-Locking Capability for Quasi-Solid Zinc-Ion Batteries with Extreme Environmental Safety.
+40377009	Rituximab for the Management of an Australian Cohort of Treatment Refractory Mucous Membrane Pemphigoid.
+40383592	An adhesive, antibacterial, conductive zwitterionic cellulose nanofibers-containing hydrogel for flexible strain sensors and super-capacitors.
+40424071	Multifunctional Zwitterionic Self-Healing Polymer Electrolytes for Anode-Free Lithium-Metal Batteries: a Computational Perspective.
+40437769	Chain-Chain Synergistic Hydrogel Electrolytes Regulate Zinc Ions Desolvation for Stabilized Anodes and High Operating Voltage in Flexible Zinc Ions Hy
+40448111	HAMA-SBMA hydrogel with anti-inflammatory properties delivers cartilage organoids, boosting cartilage regeneration.
+40471535	Mechanistic Divergence and Differential Antibacterial Potency of the Proline-Rich Antimicrobial Peptide B7-005 Across ESKAPE + E Pathogens.
+40503320	The impact of nanostructuring on the hemocompatibility of polysulfobetaine (PSB) coated hydrogel surfaces.
+40509306	A Lignin-Based Zwitterionic Surfactant Facilitates Heavy Oil Viscosity Reduction via Interfacial Modification and Molecular Aggregation Disruption in 
+40522079	Development of Substrate-Independent Antifouling and Bactericidal Surfaces Using Visible Light Cross-Linked Hydrogel Coatings for Biomedical Applicati
+40530041	NIR-responsive tissue-adaptive hydrogel for accelerating healing of seawater-immersed wounds.
+40569324	Screening Anionic Groups Within Zwitterionic Additives for Eliminating Hydrogen Evolution and Dendrites in Aqueous Zinc Ion Batteries.
+40642793	Eutectogel-based biomimetic barrier with network-structure-transformation-activated defensive and reparative functions for infected wounds.
+40732780	Fabrication of Zwitterionized Nanocellulose/Polyvinyl Alcohol Composite Hydrogels Derived from Camellia Oleifera Shells for High-Performance Flexible 
+40757286	Baseline Stability of Thermally Hydrosilated Porous Silicon with Zwitterionic Antifouling Polymer Coating for Biosensing Applications.
+40840351	Flexible, self-adhesive and eco-stable bioelectronics with dual-network phytic acid-based ionic hydrogel for biomechanical and physiological signal mo
+40871177	Anti-Swelling Dual-Network Zwitterionic Conductive Hydrogels for Flexible Human Activity Sensing.
+40923404	Antifouling Molecularly Imprinted Photoelectrochemical Sensors for Ultrasensitive and Selective Detection of the Sulfamethoxazole Antibiotic.
+40929741	Amphiphilic Poly(SBMA-
+40955328	AIE-driven photothermal nanotrigger-activated multifunctional injectable hydrogel for maxillofacial infection control.
+40956589	Concrete Structure Inspired 3D-Printed Framework Mechanically Reinforced Zwitterionic Hydrogel for Efficient Postoperative Abdominal Adhesion Preventi
+41000969	The BacA(SbmA) Importer of Symbiotically Important Legume Nodule Cysteine-Rich Peptides: Insights into Protein Architecture, Function, and Evolutionar
+41003417	Anti-Swelling Antibacterial Hydrogels Based on Electrostatic Repulsion and Hydrophobic Interactions for Human Motion Sensing.
+41012259	Biodegradable Zwitterionic PLA-Based Nanoparticles: Design and Evaluation for pH-Responsive Tumor-Targeted Drug Delivery.
+41016948	Biofilm-resistant zwitterionic resin-based adhesive for orthodontic bracket-tooth interfaces: an in vitro evaluation.
+41046879	Chitosan-based self-healing, adhesive and anti-swelling hydrogel for wearable flexible strain sensor.
+41205350	Zwitterionic hydrogel microspheres for efficient expansion and stemness maintenance of mesenchymal stem cells.
+41222981	Zwitterion-MOF Functional Interface Enabling Robust Ion and Dye Rejection in Water Filtration.
+41237340	Antifouling All-Polymeric Microneedle Array for Long-Term Wearable ECG Monitoring.
+41259288	Aminoglycoside-Peptide Nucleic Acid (PNA) Conjugates against Gram-Negative Bacteria.
+41271836	Comparison between SBMA and MPC coatings on PEEK surface: stability over time and anti-inflammatory effects in vitr﻿o.
+41447863	Zwitterionic hydrogel coatings enhance anti-fouling and anti-thrombogenicity of decellularized swim bladder for bioprosthetic heart valves.
+41486295	Next-generation polydopamine nanocoatings advancing the understanding of surface properties and antimicrobial efficacy.
+41512417	Breaking the permeability-selectivity trade-off in loose nanofiltration: Zwitterionic layer-by-layer membranes for superior antifouling dye/salt separ
+41519334	FhuA-SbmA-driven resistance pathway to microcin Y triggers transcriptomic reprogramming and virulence enhancement in Salmonella Typhimurium.
+41534339	Lotus-petiole inspired porous zwitterions electrode for efficient electrochemical uranium extraction from seawater.
+41547958	Intermittent antibiotic exposure of Escherichia coli biofilms drives resistance in catheter-associated infection models.
+41597953	Study on Preparation and Antibacterial Property of DOMA-SBMA Copolymer Coatings on Stainless Steel Surfaces.
+41599493	Forward Osmosis for Produced Water Treatment: Comparative Performance Evaluation of Fabricated and Commercial Membranes.
+41665997	BacA(SbmA) importer of legume symbiotic NCR peptides: Protein architecture, function, and evolutionary implications.
+41682051	Crosslinked Zwitterionic PVA-
+41690200	Exposure to benzene, toluene and xylenes (BTX) and biological aging: epidemiological evidence from Chinese industrial workers and mechanistic insights
+7768835	The peptide antibiotic microcin 25 is imported through the TonB pathway and the SbmA protein.
+8183941	Posttranslational modifications in microcin B17 define an additional class of DNA gyrase inhibitor.
+8393417	A Rhizobium meliloti homolog of the Escherichia coli peptide-antibiotic transport protein SbmA is essential for bacteroid development.
+8982000	Genetic analysis of the Rhizobium meliloti bacA gene: functional interchangeability with the Escherichia coli sbmA gene and phenotypes of mutants.

@@ -26,6 +26,7 @@ for d in [TEXTBOOK_DIR, WEEKLY_REPORTS_DIR, ANALYTICS_DIR, RAW_XML_DIR, CHECKPOI
 NCBI_API_KEY = os.getenv("NCBI_API_KEY", "")
 NCBI_EMAIL = os.getenv("NCBI_EMAIL", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 UNPAYWALL_EMAIL = os.getenv("UNPAYWALL_EMAIL", "")
 SEMANTIC_SCHOLAR_API_KEY = os.getenv("SEMANTIC_SCHOLAR_API_KEY", "")
 
@@ -100,6 +101,40 @@ SBMA_EXCLUDE_PRIMARY_DISEASES = [
     "androgen insensitivity syndrome",
 ]
 
+# Terms indicating a non-disease use of "SBMA" (material science, chemistry, microbiology)
+# Used by the keyword-based filter as a quick pre-screen; the LLM-based filter
+# (run_llm_relevance_filter.py) is more accurate for final classification.
+SBMA_FALSE_POSITIVE_TERMS = [
+    "sulfobetaine",
+    "methacrylate",
+    "zwitterionic",
+    "polymer",
+    "electrolyte",
+    "hydrogel",
+    "membrane",
+    "antifouling",
+    "biocompatible",
+    "copolymer",
+    "antimicrobial peptide",
+    "sbma transporter",
+    "bacasm",
+    "benzylmercapturic",
+    "toluene",
+    "benzene metabolite",
+    "urinary metabolite",
+    "wound dressing",
+    "contact lens",
+    "nanoparticle",
+    "coating",
+    "antibacterial",
+    "biofilm",
+    "grafting",
+    "biomaterial",
+    "echocardiography",
+    "myocardial",
+    "ventricular septal",
+]
+
 # Rate limits (requests per second)
 NCBI_RATE_LIMIT = 3 if NCBI_API_KEY else 1  # 3/sec with key, 1/sec without
 CROSSREF_RATE_LIMIT = 50  # polite pool
@@ -107,7 +142,7 @@ SEMANTIC_SCHOLAR_RATE_LIMIT = 10  # 100/5min ~ 10 safe
 UNPAYWALL_RATE_LIMIT = 10
 
 # --- LLM Backend ---
-LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")  # "ollama" or "gemini"
+LLM_BACKEND = os.getenv("LLM_BACKEND", "ollama")  # "ollama", "gemini", or "claude"
 
 # --- Ollama ---
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -119,6 +154,11 @@ OLLAMA_SYNTHESIS_MODEL = os.getenv("OLLAMA_SYNTHESIS_MODEL", OLLAMA_MODEL)
 GEMINI_EXTRACTION_MODEL = "gemini-2.5-flash-lite"  # bulk extraction (1,000 req/day free tier)
 GEMINI_SYNTHESIS_MODEL = "gemini-2.5-flash-lite"              # chapter synthesis (same model to maximize free quota)
 GEMINI_MAX_TOKENS = 4096
+
+# --- Claude API ---
+CLAUDE_EXTRACTION_MODEL = os.getenv("CLAUDE_EXTRACTION_MODEL", "claude-sonnet-4-6")
+CLAUDE_SYNTHESIS_MODEL = os.getenv("CLAUDE_SYNTHESIS_MODEL", "claude-opus-4-6")
+CLAUDE_MAX_TOKENS = int(os.getenv("CLAUDE_MAX_TOKENS", "4096"))
 
 # --- Ingestion ---
 INGESTION_BATCH_SIZE = 100  # articles per batch for PubMed fetch

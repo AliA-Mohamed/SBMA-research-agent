@@ -92,6 +92,71 @@ class OllamaClient:
         return parse_json_response(text)
 
 
+def call_llm(
+    prompt: str,
+    mode: str = "extraction",
+    json_mode: bool = True,
+    max_tokens: int = 4096,
+    temperature: float = 0.3,
+) -> str:
+    """Unified LLM call that routes to Ollama, Gemini, or Claude based on config.
+
+    Args:
+        prompt: The prompt to send.
+        mode: "extraction" (uses Sonnet/fast model) or "synthesis" (uses Opus/powerful model).
+        json_mode: If True, request JSON-formatted output.
+        max_tokens: Maximum tokens in the response.
+        temperature: Sampling temperature.
+
+    Returns:
+        Raw response text from the model.
+    """
+    backend = config.LLM_BACKEND
+
+    if backend == "ollama":
+        model = config.OLLAMA_EXTRACTION_MODEL if mode == "extraction" else config.OLLAMA_SYNTHESIS_MODEL
+        client = OllamaClient(model=model)
+        return client.generate(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            json_mode=json_mode,
+        )
+
+    elif backend == "gemini":
+        from google import genai
+        client = genai.Client(api_key=config.GEMINI_API_KEY)
+        model = config.GEMINI_EXTRACTION_MODEL if mode == "extraction" else config.GEMINI_SYNTHESIS_MODEL
+        gen_config = {"max_output_tokens": max_tokens}
+        if json_mode:
+            gen_config["response_mime_type"] = "application/json"
+        response = client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config=gen_config,
+        )
+        return response.text
+
+    elif backend == "claude":
+        import anthropic
+        client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
+        model = config.CLAUDE_EXTRACTION_MODEL if mode == "extraction" else config.CLAUDE_SYNTHESIS_MODEL
+        system_msg = "You are an expert SBMA researcher. "
+        if json_mode:
+            system_msg += "Respond with valid JSON only, no markdown formatting."
+        message = client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            system=system_msg,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return message.content[0].text
+
+    else:
+        raise ValueError(f"Unknown LLM_BACKEND: {backend}")
+
+
 def parse_json_response(text: str) -> Optional[dict]:
     """Parse JSON from an LLM response, handling markdown code blocks and other wrapping."""
     # Direct parse

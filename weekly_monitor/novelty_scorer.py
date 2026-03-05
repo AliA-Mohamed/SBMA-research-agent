@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from logger import setup_logger
 from database.db_manager import DBManager
-from analysis.ollama_client import OllamaClient, parse_json_response
+from analysis.ollama_client import call_llm, parse_json_response
 
 logger = setup_logger("novelty_scorer")
 
@@ -45,12 +45,6 @@ class NoveltyScorer:
 
     def __init__(self):
         self.db = DBManager()
-        self._use_ollama = config.LLM_BACKEND == "ollama"
-        if self._use_ollama:
-            self.client = OllamaClient(model=config.OLLAMA_EXTRACTION_MODEL)
-        else:
-            from google import genai
-            self.client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     def score_article(self, article: dict) -> Optional[dict]:
         """Score a single article for novelty.
@@ -86,23 +80,13 @@ class NoveltyScorer:
         )
 
         try:
-            if self._use_ollama:
-                content = self.client.generate(
-                    prompt=prompt,
-                    max_tokens=2048,
-                    temperature=0.3,
-                    json_mode=True,
-                )
-            else:
-                response = self.client.models.generate_content(
-                    model=config.GEMINI_EXTRACTION_MODEL,
-                    contents=prompt,
-                    config={
-                        "max_output_tokens": 2048,
-                        "response_mime_type": "application/json",
-                    },
-                )
-                content = response.text
+            content = call_llm(
+                prompt=prompt,
+                mode="extraction",
+                json_mode=True,
+                max_tokens=2048,
+                temperature=0.3,
+            )
 
             result = parse_json_response(content)
             if result:

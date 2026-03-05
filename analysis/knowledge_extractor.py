@@ -1,4 +1,4 @@
-"""Use LLM to extract structured knowledge from articles (Ollama or Gemini)."""
+"""Use LLM to extract structured knowledge from articles (Ollama, Gemini, or Claude)."""
 
 import sys
 import json
@@ -9,10 +9,38 @@ from typing import Optional
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from logger import setup_logger
-from analysis.ollama_client import OllamaClient, parse_json_response
+from analysis.ollama_client import call_llm, parse_json_response
 
 logger = setup_logger("knowledge_extractor")
 
+# Context limits per backend: (knowledge_chars, fulltext_chars)
+CONTEXT_LIMITS = {
+    "ollama": (8000, 12000),
+    "gemini": (50000, 100000),
+    "claude": (100000, 150000),
+}
+
+# Rate-limit sleep per backend (seconds)
+RATE_LIMIT_SLEEP = {
+    "ollama": 0.5,
+    "gemini": 2.0,
+    "claude": 1.0,
+}
+
+CANONICAL_CHAPTERS = [
+    "Chapter 1: Historical Discovery & Overview",
+    "Chapter 2: Genetics & Molecular Biology",
+    "Chapter 3: Pathophysiology & Disease Mechanisms",
+    "Chapter 4: Clinical Features & Natural History",
+    "Chapter 5: Diagnosis",
+    "Chapter 6: Epidemiology",
+    "Chapter 7: Animal & Cellular Models",
+    "Chapter 8: Therapeutic Approaches",
+    "Chapter 9: Biomarkers & Outcome Measures",
+    "Chapter 10: Living with SBMA — Patient Perspectives & Quality of Life",
+    "Chapter 11: Open Questions & Future Directions",
+    "Chapter 12: Contradictions & Debates in the Field",
+]
 
 EXTRACTION_SYSTEM_PROMPT = """You are an expert SBMA researcher building a comprehensive textbook about Spinal and Bulbar Muscular Atrophy. You have deep knowledge of neuroscience, genetics, molecular biology, and clinical medicine.
 
@@ -37,28 +65,30 @@ YOUR TASKS:
 5. CRITICALLY EVALUATE the methodology and strength of evidence
 6. UPDATE the relevant textbook chapters with new information, citing this article
 
+For each new finding, classify its knowledge_type as one of:
+  mechanism, treatment, biomarker, clinical_feature, genetic, epidemiological,
+  diagnostic, animal_model, cellular_model, case_report, review_synthesis, methodology
+
 Return a structured JSON with:
-- "new_findings": [list of genuinely new information]
+- "new_findings": [list of objects, each with "summary", "knowledge_type", and "detail"]
+  Example: {{"summary": "AR aggregates found in motor neurons", "knowledge_type": "mechanism", "detail": "..."}}
 - "confirmations": [list of things that support existing knowledge]
 - "contradictions": [list of things that contradict existing knowledge]
 - "methodology_notes": "critical evaluation"
 - "textbook_updates": {{"chapter_name": "new content to add with [PMID] citations"}}
+  IMPORTANT: Use ONLY these exact canonical chapter names as keys:
+{chapter_list}
+  Most articles update 1-3 chapters. Do NOT default to Chapter 1 unless the article is truly about SBMA history/overview.
 - "open_questions": [new questions raised by this article]
 - "evidence_strength": "strong/moderate/weak/preliminary"
 """
 
 
 class KnowledgeExtractor:
-    """Extracts structured knowledge from articles using Ollama or Gemini."""
+    """Extracts structured knowledge from articles using Ollama, Gemini, or Claude."""
 
     def __init__(self):
-        if config.LLM_BACKEND == "ollama":
-            self.client = OllamaClient(model=config.OLLAMA_EXTRACTION_MODEL)
-            self._use_ollama = True
-        else:
-            from google import genai
-            self.client = genai.Client(api_key=config.GEMINI_API_KEY)
-            self._use_ollama = False
+        self.backend = config.LLM_BACKEND
 
     def extract_from_article(
         self,
@@ -85,13 +115,11 @@ class KnowledgeExtractor:
             for a in (article.get("authors") or [])[:10]
         )
 
-        # Ollama uses smaller context truncation for better quality with 8B model
-        if self._use_ollama:
-            knowledge_limit = 8000
-            fulltext_limit = 12000
-        else:
-            knowledge_limit = 50000
-            fulltext_limit = 100000
+        knowledge_limit, fulltext_limit = CONTEXT_LIMITS.get(
+            self.backend, (50000, 100000)
+        )
+
+        chapter_list = "\n".join(f"  - {ch}" for ch in CANONICAL_CHAPTERS)
 
         prompt = EXTRACTION_SYSTEM_PROMPT.format(
             article_num=article_num,
@@ -103,28 +131,19 @@ class KnowledgeExtractor:
             year=article.get("publication_year", ""),
             abstract=article.get("abstract", "No abstract available"),
             fulltext=fulltext[:fulltext_limit] if fulltext else "Not available",
+            chapter_list=chapter_list,
         )
 
         max_retries = 5
         for attempt in range(max_retries):
             try:
-                if self._use_ollama:
-                    content = self.client.generate(
-                        prompt=prompt,
-                        max_tokens=config.GEMINI_MAX_TOKENS,
-                        temperature=0.3,
-                        json_mode=True,
-                    )
-                else:
-                    response = self.client.models.generate_content(
-                        model=config.GEMINI_EXTRACTION_MODEL,
-                        contents=prompt,
-                        config={
-                            "max_output_tokens": config.GEMINI_MAX_TOKENS,
-                            "response_mime_type": "application/json",
-                        },
-                    )
-                    content = response.text
+                content = call_llm(
+                    prompt=prompt,
+                    mode="extraction",
+                    json_mode=True,
+                    max_tokens=config.CLAUDE_MAX_TOKENS if self.backend == "claude" else config.GEMINI_MAX_TOKENS,
+                    temperature=0.3,
+                )
 
                 extracted = parse_json_response(content)
                 if extracted:
@@ -136,7 +155,9 @@ class KnowledgeExtractor:
 
             except Exception as e:
                 error_str = str(e)
-                is_retryable = any(code in error_str for code in ["503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED"])
+                is_retryable = any(code in error_str for code in [
+                    "503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED", "overloaded"
+                ])
                 if is_retryable and attempt < max_retries - 1:
                     wait_time = min(2 ** attempt * 5, 60)
                     logger.warning(

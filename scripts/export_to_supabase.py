@@ -10,7 +10,7 @@ from datetime import datetime
 from supabase import create_client, Client
 from tqdm import tqdm
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 from database.db_manager import DBManager
 

@@ -10,6 +10,8 @@ build/
 .venv/
 venv/
 data/checkpoints/
+data/checkpoints/*.json
 data/fulltext/
 data/pdfs/
 data/raw_xml/
+=*

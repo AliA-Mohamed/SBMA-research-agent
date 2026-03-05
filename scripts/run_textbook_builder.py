@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """One-time: generate the SBMA textbook from the article database."""
 
+import sys
 import argparse
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from rich.console import Console
 
 from logger import setup_logger

@@ -14,13 +14,14 @@ import plotly.graph_objects as go
 import networkx as nx
 from sqlalchemy import or_
 
-# Ensure parent on path for config / database imports
-sys.path.insert(0, str(Path(__file__).parent))
+# Ensure project root on path for config / database imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import config
 from database.db_manager import DBManager
 from database.models import Article
 
-app = Flask(__name__)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+app = Flask(__name__, template_folder=str(PROJECT_ROOT / "templates"))
 db = DBManager()
 
 

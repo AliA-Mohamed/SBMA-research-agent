@@ -1,6 +1,7 @@
 """Weekly PubMed check for new SBMA articles."""
 
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
@@ -15,6 +16,7 @@ from ingestion.pubmed_fetcher import PubMedFetcher
 from ingestion.crossref_fetcher import CrossRefFetcher
 from ingestion.semantic_scholar import SemanticScholarFetcher
 from ingestion.fulltext_fetcher import FullTextFetcher
+from analysis.llm_relevance import classify_article_relevance
 
 logger = setup_logger("new_article_checker")
 
@@ -58,14 +60,37 @@ class NewArticleChecker:
         if not new_pmids:
             return []
 
-        # Fetch full details (relevance filter is applied automatically during parsing)
+        # Fetch full details (keyword pre-filter applied during parsing)
         articles = self.pubmed.fetch_article_details(new_pmids)
         logger.info(
-            f"After SBMA relevance filtering: {len(articles)}/{len(new_pmids)} articles kept"
+            f"After keyword pre-filter: {len(articles)}/{len(new_pmids)} articles kept"
         )
 
         if not articles:
-            logger.info("No new SBMA-relevant articles after filtering")
+            logger.info("No new SBMA-relevant articles after keyword filtering")
+            return []
+
+        # LLM-based relevance filter (more accurate than keyword-only)
+        llm_kept = []
+        for art in articles:
+            result = classify_article_relevance(art.get("title", ""), art.get("abstract", ""))
+            if result["relevant"]:
+                llm_kept.append(art)
+            else:
+                logger.info(
+                    f"LLM rejected PMID {art.get('pmid')}: {result['reason']}"
+                )
+            # Rate limit for Gemini free tier
+            if config.LLM_BACKEND == "gemini":
+                time.sleep(4)
+
+        logger.info(
+            f"After LLM relevance filter: {len(llm_kept)}/{len(articles)} articles kept"
+        )
+        articles = llm_kept
+
+        if not articles:
+            logger.info("No new SBMA-relevant articles after LLM filtering")
             return []
 
         # Enrich

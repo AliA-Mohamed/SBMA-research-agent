@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """Scheduled: weekly new SBMA literature check and digest generation."""
 
+import sys
 import argparse
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from rich.console import Console
 
 from logger import setup_logger

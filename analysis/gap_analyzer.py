@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from logger import setup_logger
 from database.db_manager import DBManager
-from analysis.ollama_client import OllamaClient, parse_json_response
+from analysis.ollama_client import call_llm, parse_json_response
 
 logger = setup_logger("gap_analyzer")
 
@@ -42,12 +42,6 @@ class GapAnalyzer:
 
     def __init__(self):
         self.db = DBManager()
-        self._use_ollama = config.LLM_BACKEND == "ollama"
-        if self._use_ollama:
-            self.client = OllamaClient(model=config.OLLAMA_SYNTHESIS_MODEL)
-        else:
-            from google import genai
-            self.client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     def analyze_gaps(self) -> dict:
         """Run full gap analysis on the knowledge base."""
@@ -84,20 +78,13 @@ class GapAnalyzer:
         )
 
         try:
-            if self._use_ollama:
-                content = self.client.generate(
-                    prompt=prompt,
-                    max_tokens=8192,
-                    temperature=0.3,
-                    json_mode=True,
-                )
-            else:
-                response = self.client.models.generate_content(
-                    model=config.GEMINI_SYNTHESIS_MODEL,
-                    contents=prompt,
-                    config={"max_output_tokens": 8192},
-                )
-                content = response.text
+            content = call_llm(
+                prompt=prompt,
+                mode="synthesis",
+                json_mode=True,
+                max_tokens=8192,
+                temperature=0.3,
+            )
 
             # Try to parse as JSON
             result = parse_json_response(content)

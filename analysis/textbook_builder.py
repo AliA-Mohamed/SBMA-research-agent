@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from logger import setup_logger
 from database.db_manager import DBManager
-from analysis.knowledge_extractor import KnowledgeExtractor
-from analysis.ollama_client import OllamaClient
+from analysis.knowledge_extractor import KnowledgeExtractor, RATE_LIMIT_SLEEP
+from analysis.ollama_client import call_llm
 
 logger = setup_logger("textbook_builder")
 
@@ -91,12 +91,7 @@ class TextbookBuilder:
     def __init__(self):
         self.db = DBManager()
         self.extractor = KnowledgeExtractor()
-        self._use_ollama = config.LLM_BACKEND == "ollama"
-        if self._use_ollama:
-            self.client = OllamaClient(model=config.OLLAMA_SYNTHESIS_MODEL)
-        else:
-            from google import genai
-            self.client = genai.Client(api_key=config.GEMINI_API_KEY)
+        self.backend = config.LLM_BACKEND
         self.checkpoint_file = config.CHECKPOINTS_DIR / "textbook_builder_checkpoint.json"
 
     def build_textbook(self, resume: bool = True, limit: int = 0):
@@ -192,11 +187,8 @@ class TextbookBuilder:
             if (idx + 1) % config.CHECKPOINT_INTERVAL == 0:
                 self._save_checkpoint(idx, chapter_updates)
 
-            # Delay to respect rate limits (longer for cloud APIs)
-            if self._use_ollama:
-                time.sleep(0.5)
-            else:
-                time.sleep(2)
+            # Delay to respect rate limits
+            time.sleep(RATE_LIMIT_SLEEP.get(self.backend, 1.0))
 
         # Final checkpoint
         self._save_checkpoint(total - 1 if not limit else idx, chapter_updates)
@@ -264,19 +256,30 @@ class TextbookBuilder:
                 if kw in key_lower and chapter.startswith(ch_prefix):
                     return chapter
 
-        # Default to Chapter 1 if no match
-        logger.debug(f"No chapter match for '{chapter_key}', defaulting to Chapter 1")
-        return CHAPTERS[0]
+        # Discard unroutable updates instead of polluting Chapter 1
+        logger.debug(f"No chapter match for '{chapter_key}', discarding update")
+        return None
 
     def _store_extraction(self, pmid: str, extraction: dict):
         """Store extraction results in the database."""
-        # Store new findings
+        # Store new findings (supports both structured dicts and plain strings from old checkpoints)
         for finding in extraction.get("new_findings", []):
+            if isinstance(finding, dict):
+                summary = finding.get("summary", "")[:500]
+                knowledge_type = finding.get("knowledge_type", "finding")
+                detail = finding.get("detail", "")
+                details = json.dumps(finding)
+            else:
+                summary = str(finding)[:500]
+                knowledge_type = "finding"
+                detail = finding
+                details = json.dumps(finding) if not isinstance(finding, str) else finding
+
             self.db.add_extracted_knowledge({
                 "pmid": pmid,
-                "knowledge_type": "finding",
-                "summary": finding[:500] if isinstance(finding, str) else str(finding)[:500],
-                "details": json.dumps(finding) if not isinstance(finding, str) else finding,
+                "knowledge_type": knowledge_type,
+                "summary": summary,
+                "details": details,
                 "confidence": self._evidence_to_confidence(extraction.get("evidence_strength", "moderate")),
                 "novelty_at_publication": "new",
                 "contradicts": extraction.get("contradictions", [])[:5] if isinstance(extraction.get("contradictions"), list) else [],
@@ -285,11 +288,20 @@ class TextbookBuilder:
 
         # Store confirmations
         for conf in extraction.get("confirmations", []):
+            if isinstance(conf, dict):
+                summary = conf.get("summary", "")[:500]
+                knowledge_type = conf.get("knowledge_type", "finding")
+                details = json.dumps(conf)
+            else:
+                summary = str(conf)[:500]
+                knowledge_type = "finding"
+                details = json.dumps(conf) if not isinstance(conf, str) else conf
+
             self.db.add_extracted_knowledge({
                 "pmid": pmid,
-                "knowledge_type": "finding",
-                "summary": conf[:500] if isinstance(conf, str) else str(conf)[:500],
-                "details": json.dumps(conf) if not isinstance(conf, str) else conf,
+                "knowledge_type": knowledge_type,
+                "summary": summary,
+                "details": details,
                 "confidence": self._evidence_to_confidence(extraction.get("evidence_strength", "moderate")),
                 "novelty_at_publication": "confirmatory",
                 "contradicts": [],
@@ -301,7 +313,7 @@ class TextbookBuilder:
         return mapping.get(evidence_strength.lower(), 0.5)
 
     def _synthesize_chapters(self, chapter_updates: dict[str, list[str]]):
-        """Use Claude Opus to synthesize accumulated updates into polished chapters."""
+        """Synthesize accumulated updates into polished chapters using the LLM."""
         for chapter in CHAPTERS:
             updates = chapter_updates.get(chapter, [])
             if not updates:
@@ -317,20 +329,13 @@ class TextbookBuilder:
             prompt = SYNTHESIS_PROMPT.format(chapter=chapter, updates=updates_text)
 
             try:
-                if self._use_ollama:
-                    content = self.client.generate(
-                        prompt=prompt,
-                        max_tokens=8192,
-                        temperature=0.4,
-                        json_mode=False,
-                    )
-                else:
-                    response = self.client.models.generate_content(
-                        model=config.GEMINI_SYNTHESIS_MODEL,
-                        contents=prompt,
-                        config={"max_output_tokens": 8192},
-                    )
-                    content = response.text
+                content = call_llm(
+                    prompt=prompt,
+                    mode="synthesis",
+                    json_mode=False,
+                    max_tokens=8192,
+                    temperature=0.4,
+                )
 
                 # Get contributing PMIDs from updates
                 pmids = []
@@ -352,7 +357,7 @@ class TextbookBuilder:
             except Exception as e:
                 logger.error(f"Failed to synthesize {chapter}: {e}")
 
-            time.sleep(1)  # Rate limit pause
+            time.sleep(RATE_LIMIT_SLEEP.get(self.backend, 1.0))
 
     def _export_textbook(self):
         """Export the textbook as markdown files."""
