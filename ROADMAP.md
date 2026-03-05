@@ -1,14 +1,14 @@
 # SBMA Research Agent — Phased Roadmap
 
-## Current State (2026-03-05)
+## Current State (2026-03-06)
 
 - 993 articles in DB (1968-2026), 86.5% with fulltext
-- 946/993 processed (95.3%), 47 unprocessed
-- 10,261 knowledge entries across 13 types
-- 12 textbook chapters generated (4 are stubs)
-- Weekly monitor: implemented but never run
-- Supabase + Lovable frontend: built but showing stale/inflated numbers
-- Contamination: 41 knowledge entries + 8/12 textbook chapters contain polymer science content (sulfobetaine methacrylate, also abbreviated "SBMA")
+- 973/993 processed (97.9%), 20 returned 0 findings (Gemini parse failures)
+- 10,643 knowledge entries across 13 types (properly typed)
+- 12 textbook chapters regenerated with Claude Opus (343KB total, zero contamination)
+- Weekly monitor: validated (first run completed)
+- Supabase + Lovable frontend: re-exported with accurate numbers
+- Contamination: purged (5 hallucinated entries removed, 595 orphaned updates cleaned, all chapters regenerated)
 
 ---
 
