@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 
 import plotly
 import plotly.graph_objects as go
@@ -409,6 +409,32 @@ def api_textbook():
             "contributing_pmids": s.contributing_pmids or [],
         })
     return jsonify({"chapters": chapters})
+
+
+@app.route("/api/textbook/download")
+def api_textbook_download():
+    """Download the full SBMA textbook as a Markdown file."""
+    textbook_path = config.TEXTBOOK_DIR / "SBMA_Textbook.md"
+    if not textbook_path.exists():
+        return jsonify({"error": "Textbook file not found"}), 404
+    return send_file(
+        str(textbook_path),
+        mimetype="text/markdown",
+        as_attachment=True,
+        download_name="SBMA_Textbook.md",
+    )
+
+
+GITHUB_REPO_URL = "https://github.com/AliA-Mohamed/SBMA-research-agent"
+
+
+@app.route("/api/textbook/suggest-url")
+def api_textbook_suggest_url():
+    """Return the GitHub URL for suggesting changes."""
+    return jsonify({
+        "url": f"{GITHUB_REPO_URL}/issues/new?labels=textbook-suggestion&template=textbook_suggestion.md",
+        "repo": GITHUB_REPO_URL,
+    })
 
 
 @app.route("/api/reports")

@@ -82,6 +82,26 @@ CREATE TABLE IF NOT EXISTS gap_analysis (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Co-authorship network edges
+CREATE TABLE IF NOT EXISTS coauthorship_edges (
+    id SERIAL PRIMARY KEY,
+    author1 TEXT NOT NULL,
+    author2 TEXT NOT NULL,
+    weight INTEGER DEFAULT 1
+);
+
+-- Textbook comments (reader feedback per chapter)
+CREATE TABLE IF NOT EXISTS textbook_comments (
+    id SERIAL PRIMARY KEY,
+    chapter TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    author_email TEXT,
+    comment_text TEXT NOT NULL,
+    comment_type TEXT DEFAULT 'comment' CHECK (comment_type IN ('comment', 'correction', 'question')),
+    parent_id INTEGER REFERENCES textbook_comments(id),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_articles_year ON articles(publication_year);
 CREATE INDEX IF NOT EXISTS idx_articles_type ON articles(article_type);
@@ -89,6 +109,8 @@ CREATE INDEX IF NOT EXISTS idx_articles_journal ON articles(journal);
 CREATE INDEX IF NOT EXISTS idx_knowledge_pmid ON extracted_knowledge(pmid);
 CREATE INDEX IF NOT EXISTS idx_knowledge_type ON extracted_knowledge(knowledge_type);
 CREATE INDEX IF NOT EXISTS idx_textbook_chapter ON textbook_sections(chapter);
+CREATE INDEX IF NOT EXISTS idx_comments_chapter ON textbook_comments(chapter);
+CREATE INDEX IF NOT EXISTS idx_comments_parent ON textbook_comments(parent_id);
 
 -- Enable Row Level Security but allow public read access
 ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
@@ -98,6 +120,10 @@ ALTER TABLE weekly_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE authors_analytics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stats_overview ENABLE ROW LEVEL SECURITY;
 ALTER TABLE gap_analysis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE coauthorship_edges ENABLE ROW LEVEL SECURITY;
+
+-- RLS for textbook_comments
+ALTER TABLE textbook_comments ENABLE ROW LEVEL SECURITY;
 
 -- Public read-only policies
 CREATE POLICY "Public read" ON articles FOR SELECT USING (true);
@@ -107,3 +133,8 @@ CREATE POLICY "Public read" ON weekly_reports FOR SELECT USING (true);
 CREATE POLICY "Public read" ON authors_analytics FOR SELECT USING (true);
 CREATE POLICY "Public read" ON stats_overview FOR SELECT USING (true);
 CREATE POLICY "Public read" ON gap_analysis FOR SELECT USING (true);
+CREATE POLICY "Public read" ON coauthorship_edges FOR SELECT USING (true);
+CREATE POLICY "Public read" ON textbook_comments FOR SELECT USING (true);
+
+-- Allow anyone to insert comments (with anon key)
+CREATE POLICY "Public insert" ON textbook_comments FOR INSERT WITH CHECK (true);
