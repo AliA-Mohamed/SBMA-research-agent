@@ -14,3 +14,4 @@ python-dotenv
 rich
 flask
 supabase>=2.0
+rapidfuzz

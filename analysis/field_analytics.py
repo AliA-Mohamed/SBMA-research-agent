@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 from logger import setup_logger
 from database.db_manager import DBManager
+from analysis.author_deduplicator import AuthorDeduplicator
 
 logger = setup_logger("field_analytics")
 
@@ -29,6 +30,11 @@ class FieldAnalytics:
         self.db = DBManager()
         self.output_dir = config.ANALYTICS_DIR
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self._deduplicator = AuthorDeduplicator()
+
+    @property
+    def deduplicator(self) -> AuthorDeduplicator:
+        return self._deduplicator
 
     def run_all(self):
         """Run all analytics."""
@@ -128,9 +134,8 @@ class FieldAnalytics:
             for a in authors_json:
                 name = a.get("name", "") if isinstance(a, dict) else str(a)
                 if name:
-                    names.append(name)
+                    names.append(self.deduplicator.canonicalize(name))
 
-            # Add edges between co-authors
             for i in range(len(names)):
                 for j in range(i + 1, len(names)):
                     pair = tuple(sorted([names[i], names[j]]))
@@ -322,9 +327,10 @@ class FieldAnalytics:
             citation_count = article.citation_count or 0
 
             for idx, author in enumerate(authors):
-                name = author.get("name", "") if isinstance(author, dict) else str(author)
-                if not name:
+                raw_name = author.get("name", "") if isinstance(author, dict) else str(author)
+                if not raw_name:
                     continue
+                name = self.deduplicator.canonicalize(raw_name)
 
                 if name not in author_data:
                     author_data[name] = {

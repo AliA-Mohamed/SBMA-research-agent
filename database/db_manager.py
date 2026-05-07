@@ -5,13 +5,13 @@ from datetime import datetime, date
 from typing import Optional
 from pathlib import Path
 
-from sqlalchemy import create_engine, func, text
+from sqlalchemy import create_engine, event, func, text
 from sqlalchemy.orm import sessionmaker, Session
 
 # Add parent dir to path for config import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
-from database.models import Base, Article, ExtractedKnowledge, TextbookSection, WeeklyReport, AuthorAnalytics
+from database.models import Base, Article, ExtractedKnowledge, TextbookSection, WeeklyReport, AuthorAnalytics, MonthlyNewsletter
 
 
 class DBManager:
@@ -21,6 +21,13 @@ class DBManager:
         db_path = db_path or config.DATABASE_PATH
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self.engine = create_engine(f"sqlite:///{db_path}", echo=False)
+
+        @event.listens_for(self.engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.close()
+
         Base.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(bind=self.engine)
 
@@ -460,5 +467,64 @@ class DBManager:
         session = self.get_session()
         try:
             return session.get(WeeklyReport, report_id)
+        finally:
+            session.close()
+
+    # --- Monthly Newsletter CRUD ---
+
+    def upsert_monthly_newsletter(self, data: dict) -> MonthlyNewsletter:
+        """Insert or update a monthly newsletter by period_label."""
+        session = self.get_session()
+        try:
+            existing = (
+                session.query(MonthlyNewsletter)
+                .filter_by(period_label=data["period_label"])
+                .first()
+            )
+            if existing:
+                for key, value in data.items():
+                    setattr(existing, key, value)
+                newsletter = existing
+            else:
+                newsletter = MonthlyNewsletter(**data)
+                session.add(newsletter)
+            session.commit()
+            session.refresh(newsletter)
+            return newsletter
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def get_all_newsletters(self) -> list[MonthlyNewsletter]:
+        """All newsletters, newest first."""
+        session = self.get_session()
+        try:
+            return (
+                session.query(MonthlyNewsletter)
+                .order_by(MonthlyNewsletter.period_start.desc())
+                .all()
+            )
+        finally:
+            session.close()
+
+    def get_latest_newsletter(self) -> Optional[MonthlyNewsletter]:
+        """Most recent newsletter."""
+        session = self.get_session()
+        try:
+            return (
+                session.query(MonthlyNewsletter)
+                .order_by(MonthlyNewsletter.period_start.desc())
+                .first()
+            )
+        finally:
+            session.close()
+
+    def get_newsletter_by_id(self, newsletter_id: int) -> Optional[MonthlyNewsletter]:
+        """Single newsletter by ID."""
+        session = self.get_session()
+        try:
+            return session.get(MonthlyNewsletter, newsletter_id)
         finally:
             session.close()

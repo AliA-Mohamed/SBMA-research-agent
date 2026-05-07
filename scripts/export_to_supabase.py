@@ -38,7 +38,9 @@ def export_articles(sb: Client, db: DBManager):
         print(f"  {len(articles)} articles to export")
 
         rows = []
+        current_pmids = set()
         for a in articles:
+            current_pmids.add(a.pmid)
             rows.append({
                 "pmid": a.pmid,
                 "doi": a.doi,
@@ -58,13 +60,35 @@ def export_articles(sb: Client, db: DBManager):
             batch = rows[i:i + BATCH_SIZE]
             sb.table("articles").upsert(batch, on_conflict="pmid").execute()
 
+        # Delete stale articles not in current DB
+        all_sb_pmids = set()
+        offset = 0
+        while True:
+            resp = sb.table("articles").select("pmid").range(offset, offset + 999).execute()
+            if not resp.data:
+                break
+            for row in resp.data:
+                all_sb_pmids.add(row["pmid"])
+            if len(resp.data) < 1000:
+                break
+            offset += 1000
+
+        stale_pmids = all_sb_pmids - current_pmids
+        if stale_pmids:
+            print(f"  Removing {len(stale_pmids)} stale articles from Supabase...")
+            stale_list = list(stale_pmids)
+            for i in range(0, len(stale_list), BATCH_SIZE):
+                batch = stale_list[i:i + BATCH_SIZE]
+                sb.table("extracted_knowledge").delete().in_("pmid", batch).execute()
+                sb.table("articles").delete().in_("pmid", batch).execute()
+
         print(f"  Done: {len(rows)} articles exported")
     finally:
         session.close()
 
 
 def export_knowledge(sb: Client, db: DBManager):
-    """Export extracted knowledge to Supabase."""
+    """Export extracted knowledge to Supabase via upsert."""
     print("\n--- Exporting extracted knowledge ---")
     session = db.get_session()
     try:
@@ -74,9 +98,6 @@ def export_knowledge(sb: Client, db: DBManager):
 
         if not knowledge:
             return
-
-        # Clear existing and re-insert (simpler than upserting with auto-increment IDs)
-        sb.table("extracted_knowledge").delete().neq("id", 0).execute()
 
         rows = []
         for k in knowledge:
@@ -91,7 +112,9 @@ def export_knowledge(sb: Client, db: DBManager):
 
         for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  knowledge"):
             batch = rows[i:i + BATCH_SIZE]
-            sb.table("extracted_knowledge").insert(batch).execute()
+            sb.table("extracted_knowledge").upsert(
+                batch, on_conflict="pmid,knowledge_type,summary"
+            ).execute()
 
         print(f"  Done: {len(rows)} knowledge entries exported")
     finally:
@@ -99,7 +122,7 @@ def export_knowledge(sb: Client, db: DBManager):
 
 
 def export_textbook(sb: Client, db: DBManager):
-    """Export textbook sections to Supabase."""
+    """Export textbook sections to Supabase, archiving previous versions."""
     print("\n--- Exporting textbook sections ---")
     sections = db.get_textbook_sections()
     print(f"  {len(sections)} sections to export")
@@ -108,7 +131,23 @@ def export_textbook(sb: Client, db: DBManager):
         print("  No textbook sections yet — skipping")
         return
 
-    sb.table("textbook_sections").delete().neq("id", 0).execute()
+    # Archive current versions before overwriting
+    existing = sb.table("textbook_sections").select("*").execute()
+    if existing.data:
+        archives = []
+        for s in existing.data:
+            archives.append({
+                "chapter": s["chapter"],
+                "section_title": s["section_title"],
+                "content": s["content"],
+                "contributing_pmids": s.get("contributing_pmids", []),
+                "version": s.get("version", 1),
+                "synthesized_at": s.get("last_updated", datetime.utcnow().isoformat()),
+            })
+        for i in range(0, len(archives), BATCH_SIZE):
+            batch = archives[i:i + BATCH_SIZE]
+            sb.table("textbook_versions").insert(batch).execute()
+        print(f"  Archived {len(archives)} previous versions")
 
     rows = []
     for s in sections:
@@ -121,12 +160,17 @@ def export_textbook(sb: Client, db: DBManager):
             "last_updated": s.last_updated.isoformat() if s.last_updated else datetime.utcnow().isoformat(),
         })
 
-    sb.table("textbook_sections").insert(rows).execute()
+    for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  textbook"):
+        batch = rows[i:i + BATCH_SIZE]
+        sb.table("textbook_sections").upsert(
+            batch, on_conflict="chapter,section_title"
+        ).execute()
+
     print(f"  Done: {len(rows)} textbook sections exported")
 
 
 def export_weekly_reports(sb: Client, db: DBManager):
-    """Export weekly reports to Supabase."""
+    """Export weekly reports to Supabase via upsert."""
     print("\n--- Exporting weekly reports ---")
     reports = db.get_all_weekly_reports()
     print(f"  {len(reports)} reports to export")
@@ -134,8 +178,6 @@ def export_weekly_reports(sb: Client, db: DBManager):
     if not reports:
         print("  No weekly reports yet — skipping")
         return
-
-    sb.table("weekly_reports").delete().neq("id", 0).execute()
 
     rows = []
     for r in reports:
@@ -146,18 +188,22 @@ def export_weekly_reports(sb: Client, db: DBManager):
             "novelty_analysis": r.novelty_analysis,
         })
 
-    sb.table("weekly_reports").insert(rows).execute()
+    for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  reports"):
+        batch = rows[i:i + BATCH_SIZE]
+        sb.table("weekly_reports").upsert(
+            batch, on_conflict="report_date"
+        ).execute()
+
     print(f"  Done: {len(rows)} reports exported")
 
 
 def export_author_analytics(sb: Client, db: DBManager):
-    """Export author analytics to Supabase."""
+    """Export author analytics to Supabase via upsert."""
     print("\n--- Exporting author analytics ---")
     authors = db.get_all_author_analytics()
     print(f"  {len(authors)} author analytics to export")
 
     if not authors:
-        # Compute from articles directly
         top = db.get_top_authors(100)
         if top:
             rows = [{"author_name": name, "total_papers": count} for name, count in top]
@@ -183,6 +229,28 @@ def export_author_analytics(sb: Client, db: DBManager):
         batch = rows[i:i + BATCH_SIZE]
         sb.table("authors_analytics").upsert(batch, on_conflict="author_name").execute()
 
+    # Remove authors no longer in the local DB
+    current_names = {a.author_name for a in authors}
+    all_sb_names = set()
+    offset = 0
+    while True:
+        resp = sb.table("authors_analytics").select("author_name").range(offset, offset + 999).execute()
+        if not resp.data:
+            break
+        for row in resp.data:
+            all_sb_names.add(row["author_name"])
+        if len(resp.data) < 1000:
+            break
+        offset += 1000
+
+    stale_names = all_sb_names - current_names
+    if stale_names:
+        stale_list = list(stale_names)
+        for i in range(0, len(stale_list), BATCH_SIZE):
+            batch = stale_list[i:i + BATCH_SIZE]
+            sb.table("authors_analytics").delete().in_("author_name", batch).execute()
+        print(f"  Removed {len(stale_names)} stale author entries")
+
     print(f"  Done: {len(rows)} author analytics exported")
 
 
@@ -196,7 +264,6 @@ def export_stats_overview(sb: Client, db: DBManager):
     top_authors = db.get_top_authors(30)
     processed_pmids = db.get_processed_pmids()
 
-    # Topic evolution
     topic_data = db.get_topic_evolution_data()
 
     stats = {
@@ -222,6 +289,88 @@ def export_stats_overview(sb: Client, db: DBManager):
           f"processed={stats['processing_progress']['processed']}/{stats['processing_progress']['total']})")
 
 
+def export_coauthorship_network(sb: Client):
+    """Export co-authorship network edges to Supabase via upsert."""
+    print("\n--- Exporting co-authorship network ---")
+
+    gexf_path = config.ANALYTICS_DIR / "author_network.gexf"
+    if not gexf_path.exists():
+        print("  No author_network.gexf found — skipping")
+        return
+
+    import networkx as nx
+    G = nx.read_gexf(str(gexf_path))
+    print(f"  Network: {len(G.nodes)} nodes, {len(G.edges)} edges")
+
+    rows = []
+    for a1, a2, data in G.edges(data=True):
+        rows.append({
+            "author1": a1,
+            "author2": a2,
+            "weight": int(data.get("weight", 1)),
+        })
+
+    for i in range(0, len(rows), BATCH_SIZE):
+        batch = rows[i:i + BATCH_SIZE]
+        sb.table("coauthorship_edges").upsert(
+            batch, on_conflict="author1,author2"
+        ).execute()
+
+    # Remove stale edges
+    current_pairs = {(r["author1"], r["author2"]) for r in rows}
+    all_sb_edges = []
+    offset = 0
+    while True:
+        resp = sb.table("coauthorship_edges").select("id,author1,author2").range(offset, offset + 999).execute()
+        if not resp.data:
+            break
+        all_sb_edges.extend(resp.data)
+        if len(resp.data) < 1000:
+            break
+        offset += 1000
+
+    stale_ids = [e["id"] for e in all_sb_edges if (e["author1"], e["author2"]) not in current_pairs]
+    if stale_ids:
+        for i in range(0, len(stale_ids), BATCH_SIZE):
+            batch = stale_ids[i:i + BATCH_SIZE]
+            sb.table("coauthorship_edges").delete().in_("id", batch).execute()
+        print(f"  Removed {len(stale_ids)} stale edges")
+
+    print(f"  Done: {len(rows)} edges exported")
+
+
+def export_monthly_newsletters(sb: Client, db: DBManager):
+    """Export monthly newsletters to Supabase via upsert."""
+    print("\n--- Exporting monthly newsletters ---")
+    newsletters = db.get_all_newsletters()
+    print(f"  {len(newsletters)} newsletters to export")
+
+    if not newsletters:
+        print("  No newsletters yet — skipping")
+        return
+
+    rows = []
+    for n in newsletters:
+        rows.append({
+            "period_label": n.period_label,
+            "period_start": str(n.period_start) if n.period_start else None,
+            "period_end": str(n.period_end) if n.period_end else None,
+            "new_articles_count": n.new_articles_count,
+            "article_pmids": n.article_pmids or [],
+            "clinical_trials_json": n.clinical_trials_json or [],
+            "content_markdown": n.content_markdown,
+            "created_at": n.created_at.isoformat() if n.created_at else datetime.utcnow().isoformat(),
+        })
+
+    for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  newsletters"):
+        batch = rows[i:i + BATCH_SIZE]
+        sb.table("monthly_newsletters").upsert(
+            batch, on_conflict="period_label"
+        ).execute()
+
+    print(f"  Done: {len(rows)} newsletters exported")
+
+
 def export_gap_analysis(sb: Client):
     """Export gap analysis if available."""
     print("\n--- Exporting gap analysis ---")
@@ -241,11 +390,12 @@ def export_gap_analysis(sb: Client):
         print("  No gap analysis found — skipping")
         return
 
-    sb.table("gap_analysis").delete().neq("id", 0).execute()
-    sb.table("gap_analysis").insert({
+    # Gap analysis is a singleton — upsert with id=1
+    sb.table("gap_analysis").upsert({
+        "id": 1,
         "content": content,
         "raw_json": raw_json,
-    }).execute()
+    }, on_conflict="id").execute()
     print("  Done: gap analysis exported")
 
 
@@ -261,8 +411,10 @@ def main():
     export_knowledge(sb, db)
     export_textbook(sb, db)
     export_weekly_reports(sb, db)
+    export_monthly_newsletters(sb, db)
     export_author_analytics(sb, db)
     export_stats_overview(sb, db)
+    export_coauthorship_network(sb)
     export_gap_analysis(sb)
 
     print("\n" + "=" * 60)
