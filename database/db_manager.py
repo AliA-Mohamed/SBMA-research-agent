@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 # Add parent dir to path for config import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
-from database.models import Base, Article, ExtractedKnowledge, TextbookSection, WeeklyReport, AuthorAnalytics, MonthlyNewsletter
+from database.models import Base, Article, ExtractedKnowledge, TextbookSection, WeeklyReport, AuthorAnalytics, MonthlyNewsletter, ConferenceEvent
 
 
 class DBManager:
@@ -467,6 +467,65 @@ class DBManager:
         session = self.get_session()
         try:
             return session.get(WeeklyReport, report_id)
+        finally:
+            session.close()
+
+    # --- Conference Event CRUD ---
+
+    def upsert_conference(self, data: dict) -> ConferenceEvent:
+        session = self.get_session()
+        try:
+            existing = (
+                session.query(ConferenceEvent)
+                .filter_by(short_name=data["short_name"])
+                .first()
+            )
+            if existing:
+                for key, value in data.items():
+                    setattr(existing, key, value)
+                conf = existing
+            else:
+                conf = ConferenceEvent(**data)
+                session.add(conf)
+            session.commit()
+            session.refresh(conf)
+            return conf
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+    def get_all_conferences(self) -> list[ConferenceEvent]:
+        session = self.get_session()
+        try:
+            return session.query(ConferenceEvent).order_by(ConferenceEvent.start_date.asc()).all()
+        finally:
+            session.close()
+
+    def get_future_conferences(self, reference_date: date) -> list[ConferenceEvent]:
+        session = self.get_session()
+        try:
+            return (
+                session.query(ConferenceEvent)
+                .filter(ConferenceEvent.start_date >= reference_date)
+                .order_by(ConferenceEvent.start_date.asc())
+                .all()
+            )
+        finally:
+            session.close()
+
+    def get_recent_conferences(self, reference_date: date, days_back: int = 30) -> list[ConferenceEvent]:
+        from datetime import timedelta
+        cutoff_date = reference_date - timedelta(days=days_back)
+        session = self.get_session()
+        try:
+            return (
+                session.query(ConferenceEvent)
+                .filter(ConferenceEvent.end_date >= cutoff_date, ConferenceEvent.end_date <= reference_date)
+                .order_by(ConferenceEvent.end_date.desc())
+                .all()
+            )
         finally:
             session.close()
 

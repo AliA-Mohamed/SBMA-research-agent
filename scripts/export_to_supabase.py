@@ -4,6 +4,7 @@
 import sys
 import json
 import os
+import time
 from pathlib import Path
 from datetime import datetime
 
@@ -18,7 +19,26 @@ from database.db_manager import DBManager
 SUPABASE_URL = os.getenv("SUPABASE_URL", "")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY", "")
 
-BATCH_SIZE = 200  # rows per upsert batch
+BATCH_SIZE = 50  # smaller batches to avoid HTTP/2 connection drops
+
+
+def upsert_with_retry(table, rows, on_conflict, max_retries=5):
+    """Upsert a batch with exponential backoff on transient connection errors."""
+    for attempt in range(max_retries):
+        try:
+            table.upsert(rows, on_conflict=on_conflict).execute()
+            return
+        except Exception as e:
+            err = str(e)
+            if attempt < max_retries - 1 and any(x in err for x in [
+                "RemoteProtocolError", "ConnectionTerminated", "RemoteDisconnected",
+                "ConnectionReset", "BrokenPipe", "timeout", "Timeout"
+            ]):
+                wait = 2 ** attempt
+                print(f"\n  Connection error (attempt {attempt+1}/{max_retries}), retrying in {wait}s...")
+                time.sleep(wait)
+            else:
+                raise
 
 
 def get_supabase() -> Client:
@@ -58,7 +78,7 @@ def export_articles(sb: Client, db: DBManager):
 
         for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  articles"):
             batch = rows[i:i + BATCH_SIZE]
-            sb.table("articles").upsert(batch, on_conflict="pmid").execute()
+            upsert_with_retry(sb.table("articles"), batch, "pmid")
 
         # Delete stale articles not in current DB
         all_sb_pmids = set()
@@ -100,7 +120,13 @@ def export_knowledge(sb: Client, db: DBManager):
             return
 
         rows = []
+        seen_keys = set()
         for k in knowledge:
+            key = (k.pmid, k.knowledge_type, k.summary)
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+            
             rows.append({
                 "pmid": k.pmid,
                 "knowledge_type": k.knowledge_type,
@@ -112,9 +138,7 @@ def export_knowledge(sb: Client, db: DBManager):
 
         for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  knowledge"):
             batch = rows[i:i + BATCH_SIZE]
-            sb.table("extracted_knowledge").upsert(
-                batch, on_conflict="pmid,knowledge_type,summary"
-            ).execute()
+            upsert_with_retry(sb.table("extracted_knowledge"), batch, "pmid,knowledge_type,summary")
 
         print(f"  Done: {len(rows)} knowledge entries exported")
     finally:
@@ -162,9 +186,7 @@ def export_textbook(sb: Client, db: DBManager):
 
     for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  textbook"):
         batch = rows[i:i + BATCH_SIZE]
-        sb.table("textbook_sections").upsert(
-            batch, on_conflict="chapter,section_title"
-        ).execute()
+        upsert_with_retry(sb.table("textbook_sections"), batch, "chapter,section_title")
 
     print(f"  Done: {len(rows)} textbook sections exported")
 
@@ -190,9 +212,7 @@ def export_weekly_reports(sb: Client, db: DBManager):
 
     for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  reports"):
         batch = rows[i:i + BATCH_SIZE]
-        sb.table("weekly_reports").upsert(
-            batch, on_conflict="report_date"
-        ).execute()
+        upsert_with_retry(sb.table("weekly_reports"), batch, "report_date")
 
     print(f"  Done: {len(rows)} reports exported")
 
@@ -209,7 +229,7 @@ def export_author_analytics(sb: Client, db: DBManager):
             rows = [{"author_name": name, "total_papers": count} for name, count in top]
             for i in range(0, len(rows), BATCH_SIZE):
                 batch = rows[i:i + BATCH_SIZE]
-                sb.table("authors_analytics").upsert(batch, on_conflict="author_name").execute()
+                upsert_with_retry(sb.table("authors_analytics"), batch, "author_name")
             print(f"  Done: {len(rows)} author stats computed and exported")
         return
 
@@ -227,7 +247,7 @@ def export_author_analytics(sb: Client, db: DBManager):
 
     for i in range(0, len(rows), BATCH_SIZE):
         batch = rows[i:i + BATCH_SIZE]
-        sb.table("authors_analytics").upsert(batch, on_conflict="author_name").execute()
+        upsert_with_retry(sb.table("authors_analytics"), batch, "author_name")
 
     # Remove authors no longer in the local DB
     current_names = {a.author_name for a in authors}
@@ -283,7 +303,7 @@ def export_stats_overview(sb: Client, db: DBManager):
         "last_updated": datetime.utcnow().isoformat(),
     }
 
-    sb.table("stats_overview").upsert(stats, on_conflict="id").execute()
+    upsert_with_retry(sb.table("stats_overview"), [stats], "id")
     print(f"  Done: stats exported (articles={stats['total_articles']}, "
           f"knowledge={stats['total_knowledge']}, "
           f"processed={stats['processing_progress']['processed']}/{stats['processing_progress']['total']})")
@@ -312,9 +332,7 @@ def export_coauthorship_network(sb: Client):
 
     for i in range(0, len(rows), BATCH_SIZE):
         batch = rows[i:i + BATCH_SIZE]
-        sb.table("coauthorship_edges").upsert(
-            batch, on_conflict="author1,author2"
-        ).execute()
+        upsert_with_retry(sb.table("coauthorship_edges"), batch, "author1,author2")
 
     # Remove stale edges
     current_pairs = {(r["author1"], r["author2"]) for r in rows}
@@ -358,15 +376,15 @@ def export_monthly_newsletters(sb: Client, db: DBManager):
             "new_articles_count": n.new_articles_count,
             "article_pmids": n.article_pmids or [],
             "clinical_trials_json": n.clinical_trials_json or [],
+            "future_conferences_json": getattr(n, "future_conferences_json", []),
+            "recent_conferences_json": getattr(n, "recent_conferences_json", []),
             "content_markdown": n.content_markdown,
             "created_at": n.created_at.isoformat() if n.created_at else datetime.utcnow().isoformat(),
         })
 
     for i in tqdm(range(0, len(rows), BATCH_SIZE), desc="  newsletters"):
         batch = rows[i:i + BATCH_SIZE]
-        sb.table("monthly_newsletters").upsert(
-            batch, on_conflict="period_label"
-        ).execute()
+        upsert_with_retry(sb.table("monthly_newsletters"), batch, "period_label")
 
     print(f"  Done: {len(rows)} newsletters exported")
 

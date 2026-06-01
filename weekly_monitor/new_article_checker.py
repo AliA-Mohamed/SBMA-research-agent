@@ -35,13 +35,22 @@ class NewArticleChecker:
         self.semantic_scholar = SemanticScholarFetcher()
         self.fulltext = FullTextFetcher()
 
-    def check_new_articles(self, days_back: int = 7) -> list[dict]:
-        """Search for articles published in the last N days.
+    def check_new_articles(
+        self,
+        days_back: int = 7,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
+    ) -> list[dict]:
+        """Search for articles published in a date range.
 
+        If start/end are provided they take precedence over days_back.
         Returns list of new article dicts (not already in DB).
         """
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=days_back)
+        if start and end:
+            start_date, end_date = start, end
+        else:
+            end_date = datetime.now()
+            start_date = end_date - timedelta(days=days_back)
 
         date_range = f"{start_date.strftime('%Y/%m/%d')}:{end_date.strftime('%Y/%m/%d')}[dp]"
         query = f"({config.PUBMED_SEARCH_QUERY}) AND ({date_range})"

@@ -10,6 +10,26 @@ from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
 
+class ConferenceEvent(Base):
+    __tablename__ = "conference_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String)
+    short_name = Column(String)
+    organizer = Column(String)
+    url = Column(String)
+    relevance = Column(Text)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    location = Column(String)
+    registration_status = Column(String)  # Open, Closed, TBA
+    abstract_status = Column(String)  # Open, Closed, TBA
+    image_url = Column(String)
+
+    def __repr__(self):
+        return f"<ConferenceEvent(short_name={self.short_name}, dates={self.start_date} to {self.end_date})>"
+
+
 class Article(Base):
     __tablename__ = "articles"
 
@@ -112,3 +132,22 @@ class AuthorAnalytics(Base):
 
     def __repr__(self):
         return f"<AuthorAnalytics(name={self.author_name}, papers={self.total_papers})>"
+
+
+class MonthlyNewsletter(Base):
+    __tablename__ = "monthly_newsletters"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    period_label = Column(String, index=True, unique=True)  # e.g. "March 2026"
+    period_start = Column(Date)
+    period_end = Column(Date)
+    new_articles_count = Column(Integer, default=0)
+    article_pmids = Column(JSON)  # [str] — PMIDs of new articles
+    clinical_trials_json = Column(JSON)  # list of trial dicts from ClinicalTrials.gov
+    future_conferences_json = Column(JSON)  # list of future conference dicts
+    recent_conferences_json = Column(JSON)  # list of recent conference dicts
+    content_markdown = Column(Text)  # full AI-written newsletter
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<MonthlyNewsletter(period={self.period_label}, articles={self.new_articles_count})>"

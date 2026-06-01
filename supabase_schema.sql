@@ -159,17 +159,39 @@ ALTER TABLE textbook_comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE textbook_versions ENABLE ROW LEVEL SECURITY;
 
 -- Public read-only policies
+DROP POLICY IF EXISTS "Public read" ON articles;
 CREATE POLICY "Public read" ON articles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON extracted_knowledge;
 CREATE POLICY "Public read" ON extracted_knowledge FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON textbook_sections;
 CREATE POLICY "Public read" ON textbook_sections FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON weekly_reports;
 CREATE POLICY "Public read" ON weekly_reports FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON authors_analytics;
 CREATE POLICY "Public read" ON authors_analytics FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON stats_overview;
 CREATE POLICY "Public read" ON stats_overview FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON gap_analysis;
 CREATE POLICY "Public read" ON gap_analysis FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON coauthorship_edges;
 CREATE POLICY "Public read" ON coauthorship_edges FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON monthly_newsletters;
 CREATE POLICY "Public read" ON monthly_newsletters FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON textbook_comments;
 CREATE POLICY "Public read" ON textbook_comments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read" ON textbook_versions;
 CREATE POLICY "Public read" ON textbook_versions FOR SELECT USING (true);
 
 -- Allow anyone to insert comments (with anon key)
+DROP POLICY IF EXISTS "Public insert" ON textbook_comments;
 CREATE POLICY "Public insert" ON textbook_comments FOR INSERT WITH CHECK (true);

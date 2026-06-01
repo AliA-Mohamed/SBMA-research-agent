@@ -144,14 +144,28 @@ def call_llm(
         system_msg = "You are an expert SBMA researcher. "
         if json_mode:
             system_msg += "Respond with valid JSON only, no markdown formatting."
-        message = client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            system=system_msg,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return message.content[0].text
+        # Use streaming for large requests to avoid SDK timeout
+        if max_tokens > 16384:
+            collected = []
+            with client.messages.stream(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system_msg,
+                messages=[{"role": "user", "content": prompt}],
+            ) as stream:
+                for text in stream.text_stream:
+                    collected.append(text)
+            return "".join(collected)
+        else:
+            message = client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system_msg,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return message.content[0].text
 
     else:
         raise ValueError(f"Unknown LLM_BACKEND: {backend}")
